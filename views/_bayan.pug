@@ -1,10 +1,12 @@
 mixin schemaForm(s, prefix='form')
   form(method='post', target='tgt')&attributes(attributes)
-    - console.log(s.attributes)
-    +schemaFields(s.attributes, prefix)
-    button.btn.waves-effect.waves-light(type='submit')
-      | Submit
-      i.material-icons.right send
+    .card
+      .card-content
+        +schemaFields(s.attributes, prefix)
+      .card-action
+        button.btn.waves-effect.waves-light(type='submit')
+          | Submit
+          i.material-icons.right send
   pre: code!=JSON.stringify(s, null, 4)
 
 mixin schemaFields(fields, prefix)
@@ -23,7 +25,8 @@ mixin field_bare(attr, id)
 mixin field(attr, id)
   - var wrapperOptions = {id}
   if 'object' == attr.fieldType || 'array' == attr.fieldType
-    p.center-align=attr.label
+    - wrapperOptions.header =attr.label
+    - wrapperOptions.classes = ''
   else if 'boolean' !== attr.fieldType
     - wrapperOptions.label = attr.label
     - wrapperOptions.classes = 'input-field'
@@ -40,16 +43,27 @@ mixin _number(attr, id)
   +_string(attr, id)(type='number')
 
 mixin _object(attr, id)
-  .row
-    +schemaFields(attr.extendedType, id)
+  +schemaFields(attr.extendedType, id)
 
 mixin _array(attr, id)
-  .row
-    .col.s12
-      +field_bare(attr.extendedType[0], id+'.0')
-  .row
-    .col.s12
-      +field_bare(attr.extendedType[0], id+'.1')
+  script(type='bayan-template',id='bayan-template-'+id,data-next-number=2).
+    #[+array_element(attr.extendedType[0], id, '{NUM}')]
+
+  +array_element(attr.extendedType[0], id, 0)
+  +array_element(attr.extendedType[0], id, 1)
+  div.right-align.bayan-add-array-element.teal
+    button.btn-floating.waves-effect.waves-light.white(type='button',onclick='Bayan.UI.arrayAdd(this)')
+      i.material-icons.teal-text add
+
+mixin array_element(attr, id, num)
+  div(class=('{NUM}'==num)?'bayan-array-template':'bayan-array-element')
+    .row
+      .col.s3.m2.l1
+        .bayan-array-number.valign-wrapper
+          button.valign.btn-floating.btn-flat(type='button',tabindex=-1,onclick='Bayan.UI.arrayDel(this)')
+            i.material-icons delete
+      .col.s9.m10.l11
+        +field_bare(attr, id+'.'+num)
 
 mixin _boolean(attr, id)
   .switch
@@ -60,8 +74,19 @@ mixin _boolean(attr, id)
       | Yes
 
 mixin field_wrapper(opts={})
-  .row
-    .col.s12(class=opts.classes)
-      if opts.label
-        label(for=opts.id)=opts.label
-      block
+  if opts.header
+    .bayan-sub-container
+      .bayan-sub-header=opts.header
+      .bayan-sub-content
+        +_field_wrapper(opts)
+          block
+  else
+    .row
+      .col.s12(class=opts.classes)
+        +_field_wrapper(opts)
+          block
+
+mixin _field_wrapper(opts)
+  if opts.label
+    label(for=opts.id)=opts.label
+  block

@@ -1,4 +1,46 @@
+@teal: #009688;
 
 .switch {
+  margin-bottom: 1em;
+}
+
+.bayan-sub-container {
+  border-left: 3px solid @teal;
+  > .bayan-sub-header {
+    background: @teal;
+    color: white;
+    text-align: center;
+    font-size: 1.3em;
+  }
+  > .bayan-sub-content {
+    > div {
+      padding-left: 7px;
+    }
+    > .bayan-array-element {
+      border-bottom: 1px solid @teal;
+      position: relative;
+      > .row {
+        > .col {
+          > .bayan-array-number {
+            text-align: center;
+            font-size: 2em;
+            background: @teal;
+            position: absolute;
+            top: 0;
+            bottom: 0px;
+            left: 0;
+            padding: .5em;
+            border-bottom: 1px solid white;
+            button {
+              color: white;
+            }
+          }
+        }
+      }
+    }
+    > .bayan-add-array-element {
+      padding: 10px;
+    }
+  }
   margin-bottom: 1em;
 }

@@ -1,0 +1,67 @@
+mixin schemaForm(s, prefix='form')
+  form(method='post', target='tgt')&attributes(attributes)
+    - console.log(s.attributes)
+    +schemaFields(s.attributes, prefix)
+    button.btn.waves-effect.waves-light(type='submit')
+      | Submit
+      i.material-icons.right send
+  pre: code!=JSON.stringify(s, null, 4)
+
+mixin schemaFields(fields, prefix)
+  - console.log('>',fields, prefix)
+  each attr, attrName in fields
+    - var id = prefix+'.'+attrName
+    +field(attr, id)
+
+mixin field_bare(attr, id)
+  if pug_mixins['_' + attr.fieldType]
+    !=`<!-- ${id}(${attr.fieldType}) -->`
+    +#{'_' + attr.fieldType}(attr, id)
+  else
+    p: em _#{attr.fieldType} is not implemented yet...
+
+mixin field(attr, id)
+  - var wrapperOptions = {id}
+  if 'object' == attr.fieldType || 'array' == attr.fieldType
+    p.center-align=attr.label
+  else if 'boolean' !== attr.fieldType
+    - wrapperOptions.label = attr.label
+    - wrapperOptions.classes = 'input-field'
+  +field_wrapper(wrapperOptions)
+    +field_bare(attr, id)
+
+mixin _string(attr, id)
+  input.validate(id=id, name=id, type='text',placeholder=attr.placeholder)&attributes(attributes)
+
+mixin _date(attr, id)
+  +_string(attr, id)(type='date',class='datepicker')
+
+mixin _number(attr, id)
+  +_string(attr, id)(type='number')
+
+mixin _object(attr, id)
+  .row
+    +schemaFields(attr.extendedType, id)
+
+mixin _array(attr, id)
+  .row
+    .col.s12
+      +field_bare(attr.extendedType[0], id+'.0')
+  .row
+    .col.s12
+      +field_bare(attr.extendedType[0], id+'.1')
+
+mixin _boolean(attr, id)
+  .switch
+    label
+      | #{attr.label}: No
+      input(id=id, name=id, type='checkbox')
+      span.lever
+      | Yes
+
+mixin field_wrapper(opts={})
+  .row
+    .col.s12(class=opts.classes)
+      if opts.label
+        label(for=opts.id)=opts.label
+      block

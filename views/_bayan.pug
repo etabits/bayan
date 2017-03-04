@@ -7,7 +7,8 @@ mixin schemaForm(s, data={},prefix='form')
         button.btn.waves-effect.waves-light(type='submit')
           | Submit
           i.material-icons.right send
-  pre: code!=JSON.stringify(s, null, 4)
+  pre&attributes(attributes): code!=JSON.stringify(s.attributes, null, 4)
+  pre&attributes(attributes): code!=JSON.stringify(s.originalAttributes, null, 4)
 
 mixin schemaFields(fields, data, prefix)
   each attr, attrName in fields
@@ -27,14 +28,13 @@ mixin field(attr, data, id)
   if 'object' == attr.fieldType || 'array' == attr.fieldType
     - wrapperOptions.header =attr.label
     - wrapperOptions.classes = ''
-  else if 'boolean' !== attr.fieldType
+  else if ['string', 'number'].indexOf(attr.fieldType) !== -1
     - wrapperOptions.label = attr.label
     - wrapperOptions.classes = 'input-field'
   +field_wrapper(wrapperOptions)
     +field_bare(attr, data, id)
 
 mixin _string(attr, data, id)
-  - console.log('>', data)
   input.validate(id=id, name=id, type='text',value=data,placeholder=attr.placeholder)&attributes(attributes)
 
 mixin _date(attr, data, id)
@@ -42,6 +42,22 @@ mixin _date(attr, data, id)
 
 mixin _number(attr, data, id)
   +_string(attr, data, id)(type='number')
+
+mixin _select(attr, data, id)
+  select.icons(id=id, name=id)&attributes(attributes)
+    option(disabled,selected)=attr.label
+    each opt in attr.enum
+      option(value=opt.value,data-icon=opt.image)=opt.label
+
+mixin _multi_select(attr, data, id)
+  +_select(attr, data, id)(multiple)
+
+mixin _chips(attr, data, id)
+  .bayan-hidden-fileds
+  .chips.chips-autocomplete(data-options=JSON.stringify(attr.enum),data-placeholder=attr.placeholder,data-field=id)
+
+mixin x_auto_complete(attr, data, id)
+  input.autocomplete(id=id, name=id, type='text',value=data,placeholder=attr.placeholder,data-options=JSON.stringify(attr.enum))
 
 mixin _object(attr, data, id)
   +schemaFields(attr.extendedType, data, id)

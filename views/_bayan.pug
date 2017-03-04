@@ -1,28 +1,28 @@
-mixin schemaForm(s, prefix='form')
+mixin schemaForm(s, data={},prefix='form')
   form(method='post', target='tgt')&attributes(attributes)
     .card
       .card-content
-        +schemaFields(s.attributes, prefix)
+        +schemaFields(s.attributes, data, prefix)
       .card-action
         button.btn.waves-effect.waves-light(type='submit')
           | Submit
           i.material-icons.right send
   pre: code!=JSON.stringify(s, null, 4)
 
-mixin schemaFields(fields, prefix)
-  - console.log('>',fields, prefix)
+mixin schemaFields(fields, data, prefix)
   each attr, attrName in fields
     - var id = prefix+'.'+attrName
-    +field(attr, id)
+    - console.log(id, attrName, data)
+    +field(attr, data && data[attrName], id)
 
-mixin field_bare(attr, id)
+mixin field_bare(attr, data, id)
   if pug_mixins['_' + attr.fieldType]
     !=`<!-- ${id}(${attr.fieldType}) -->`
-    +#{'_' + attr.fieldType}(attr, id)
+    +#{'_' + attr.fieldType}(attr, data, id)
   else
     p: em _#{attr.fieldType} is not implemented yet...
 
-mixin field(attr, id)
+mixin field(attr, data, id)
   - var wrapperOptions = {id}
   if 'object' == attr.fieldType || 'array' == attr.fieldType
     - wrapperOptions.header =attr.label
@@ -31,31 +31,36 @@ mixin field(attr, id)
     - wrapperOptions.label = attr.label
     - wrapperOptions.classes = 'input-field'
   +field_wrapper(wrapperOptions)
-    +field_bare(attr, id)
+    +field_bare(attr, data, id)
 
-mixin _string(attr, id)
-  input.validate(id=id, name=id, type='text',placeholder=attr.placeholder)&attributes(attributes)
+mixin _string(attr, data, id)
+  - console.log('>', data)
+  input.validate(id=id, name=id, type='text',value=data,placeholder=attr.placeholder)&attributes(attributes)
 
-mixin _date(attr, id)
-  +_string(attr, id)(type='date',class='datepicker')
+mixin _date(attr, data, id)
+  +_string(attr, data, id)(type='date',class='datepicker')
 
-mixin _number(attr, id)
-  +_string(attr, id)(type='number')
+mixin _number(attr, data, id)
+  +_string(attr, data, id)(type='number')
 
-mixin _object(attr, id)
-  +schemaFields(attr.extendedType, id)
+mixin _object(attr, data, id)
+  +schemaFields(attr.extendedType, data, id)
 
-mixin _array(attr, id)
-  script(type='bayan-template',id='bayan-template-'+id,data-next-number=2).
-    #[+array_element(attr.extendedType[0], id, '{NUM}')]
+mixin _array(attr, data, id)
+  .bayan-template(id='bayan-template-'+id,data-next-number=data? data.length : 1)
+    +array_element(attr.extendedType[0], null, id, '{NUM}')
 
-  +array_element(attr.extendedType[0], id, 0)
-  +array_element(attr.extendedType[0], id, 1)
+  if data && data.length
+    each val,index in data
+      +array_element(attr.extendedType[0], val, id, index)
+  else
+      +array_element(attr.extendedType[0], null, id, 0)
+
   div.right-align.bayan-add-array-element.teal
     button.btn-floating.waves-effect.waves-light.white(type='button',onclick='Bayan.UI.arrayAdd(this)')
       i.material-icons.teal-text add
 
-mixin array_element(attr, id, num)
+mixin array_element(attr, data, id, num)
   div(class=('{NUM}'==num)?'bayan-array-template':'bayan-array-element')
     .row
       .col.s3.m2.l1
@@ -63,13 +68,13 @@ mixin array_element(attr, id, num)
           button.valign.btn-floating.btn-flat(type='button',tabindex=-1,onclick='Bayan.UI.arrayDel(this)')
             i.material-icons delete
       .col.s9.m10.l11
-        +field_bare(attr, id+'.'+num)
+        +field_bare(attr, data, id+'.'+num)
 
-mixin _boolean(attr, id)
+mixin _boolean(attr, data, id)
   .switch
     label
       | #{attr.label}: No
-      input(id=id, name=id, type='checkbox')
+      input(id=id, name=id, type='checkbox',checked=!!data)
       span.lever
       | Yes
 

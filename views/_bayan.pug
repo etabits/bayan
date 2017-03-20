@@ -64,7 +64,7 @@ mixin _select(attr, data, id)
       option(value=value,data-icon=opt.image)=opt.label
 
 mixin _multi_select(attr, data, id)
-  +_select(attr, data, id)(multiple)
+  +_select(attr, data, id+'[]')(multiple)
 
 mixin _chips(attr, data, id)
   .bayan-hidden-fileds
@@ -78,13 +78,13 @@ mixin _object(attr, data, id)
 
 mixin _array(attr, data, id)
   .bayan-template(id='bayan-template-'+id,data-next-number=data? data.length : 1)
-    +array_element(attr.extendedType[0], null, id, '{NUM}')
+    +array_element(attr['0'], null, id, '{NUM}')
 
   if data && data.length
     each val,index in data
-      +array_element(attr.extendedType[0], val, id, index)
+      +array_element(attr['0'], val, id, index)
   else
-      +array_element(attr.extendedType[0], null, id, 0)
+      +array_element(attr['0'], null, id, 0)
 
   div.right-align.bayan-add-array-element.teal
     button.btn-floating.waves-effect.waves-light.white(type='button',onclick='Bayan.UI.arrayAdd(this)')

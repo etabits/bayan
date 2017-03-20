@@ -1,36 +1,50 @@
+
 mixin schemaForm(s, data={},prefix='form')
+  - ctxt.form = {prefix, model:s}
   form(method='post', target='tgt')&attributes(attributes)
     .card
       .card-content
-        +schemaFields(s.attributes, data, prefix)
+        if block
+          block
+        else
+          +schemaFields(s, data, prefix)
       .card-action
         button.btn.waves-effect.waves-light(type='submit')
           | Submit
           i.material-icons.right send
-  pre&attributes(attributes): code!=JSON.stringify(s.attributes, null, 4)
-  pre&attributes(attributes): code!=JSON.stringify(s.originalAttributes, null, 4)
+  - delete ctxt.form
+
 
 mixin schemaFields(fields, data, prefix)
   each attr, attrName in fields
+    - if ('$'==attrName) continue;
     - var id = prefix+'.'+attrName
-    - console.log(id, attrName, data)
+    //- console.log(id, attrName, attr)
+    //- - continue
     +field(attr, data && data[attrName], id)
 
 mixin field_bare(attr, data, id)
-  if pug_mixins['_' + attr.fieldType]
-    !=`<!-- ${id}(${attr.fieldType}) -->`
-    +#{'_' + attr.fieldType}(attr, data, id)
+  //- console.log(attr.$.fieldType)
+  if pug_mixins['_' + attr.$.fieldType]
+    !=`<!-- ${id}(${attr.$.fieldType}) -->`
+    +#{'_' + attr.$.fieldType}(attr, data, id)
   else
-    p: em _#{attr.fieldType} is not implemented yet...
+    p: em _#{attr.$.fieldType} is not implemented yet...
+
+mixin f(path)
+  -
+    var field = ctxt.form.model;
+    for (var parts = path.split('.'); parts.length > 0; field=field[parts.shift()]);
+    - console.log(field)
+  +field(field, null, ctxt.form.prefix+'.'+path)
 
 mixin field(attr, data, id)
-  - var wrapperOptions = {id}
-  if 'object' == attr.fieldType || 'array' == attr.fieldType
-    - wrapperOptions.header =attr.label
-    - wrapperOptions.classes = ''
-  else if ['string', 'number'].indexOf(attr.fieldType) !== -1
-    - wrapperOptions.label = attr.label
-    - wrapperOptions.classes = 'input-field'
+  - var wrapperOptions = {id, classes: 'input-type-'+attr.$.fieldType, $: attr.$}
+  if 'object' == attr.$.fieldType || 'array' == attr.$.fieldType
+    - wrapperOptions.header =attr.$.label
+  else if ['string', 'number', 'autocomplete', 'date','select'].indexOf(attr.$.fieldType) !== -1
+    - wrapperOptions.label = attr.$.label
+    - wrapperOptions.classes += ' input-field'
   +field_wrapper(wrapperOptions)
     +field_bare(attr, data, id)
 
@@ -45,9 +59,9 @@ mixin _number(attr, data, id)
 
 mixin _select(attr, data, id)
   select.icons(id=id, name=id)&attributes(attributes)
-    option(disabled,selected)=attr.label
-    each opt in attr.enum
-      option(value=opt.value,data-icon=opt.image)=opt.label
+    option(disabled,selected)=attr.$.placeholder || attr.$.label
+    each opt,value in attr.$.enum
+      option(value=value,data-icon=opt.image)=opt.label
 
 mixin _multi_select(attr, data, id)
   +_select(attr, data, id)(multiple)
@@ -56,11 +70,11 @@ mixin _chips(attr, data, id)
   .bayan-hidden-fileds
   .chips.chips-autocomplete(data-options=JSON.stringify(attr.enum),data-placeholder=attr.placeholder,data-field=id)
 
-mixin x_auto_complete(attr, data, id)
-  input.autocomplete(id=id, name=id, type='text',value=data,placeholder=attr.placeholder,data-options=JSON.stringify(attr.enum))
+mixin _autocomplete(attr, data, id)
+  input.autocomplete(id=id, name=id, type='text',value=data,placeholder=attr.placeholder,data-options=JSON.stringify(attr.$.enum))
 
 mixin _object(attr, data, id)
-  +schemaFields(attr.extendedType, data, id)
+  +schemaFields(attr, data, id)
 
 mixin _array(attr, data, id)
   .bayan-template(id='bayan-template-'+id,data-next-number=data? data.length : 1)
@@ -95,6 +109,7 @@ mixin _boolean(attr, data, id)
       | Yes
 
 mixin field_wrapper(opts={})
+  //- - console.log('>>', opts)
   if opts.header
     .bayan-sub-container
       .bayan-sub-header=opts.header
@@ -109,5 +124,5 @@ mixin field_wrapper(opts={})
 
 mixin _field_wrapper(opts)
   if opts.label
-    label(for=opts.id)=opts.label
+    label(for=opts.id, class=['date', 'select'].includes(opts.$.fieldType)?'active':'')=opts.label
   block

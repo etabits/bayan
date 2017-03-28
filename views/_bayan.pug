@@ -42,11 +42,14 @@ mixin field(attr, data, id)
   - var wrapperOptions = {id, classes: 'input-type-'+attr.$.fieldType, $: attr.$}
   if 'object' == attr.$.fieldType || 'array' == attr.$.fieldType
     - wrapperOptions.header =attr.$.label
-  else if ['string', 'number', 'autocomplete', 'date','select'].indexOf(attr.$.fieldType) !== -1
+  else if ['string', 'number', 'autocomplete', 'date','select', 'textarea'].indexOf(attr.$.fieldType) !== -1
     - wrapperOptions.label = attr.$.label
     - wrapperOptions.classes += ' input-field'
   +field_wrapper(wrapperOptions)
     +field_bare(attr, data, id)
+
+mixin _textarea(attr, data, id)
+  textarea.materialize-textarea(id=id, name=id,value=data,placeholder=attr.placeholder)&attributes(attributes)=data
 
 mixin _string(attr, data, id)
   input.validate(id=id, name=id, type='text',value=data,placeholder=attr.placeholder)&attributes(attributes)

@@ -14,6 +14,18 @@ mixin schemaForm(s, data={},prefix='form')
           i.material-icons.right send
   - delete ctxt.form
 
+mixin f(path)
+  -
+    var field = ctxt.form.model;
+    var data = ctxt.form.data;
+    for (var parts = path.split('.'); parts.length > 0; data = data && data[parts[0]], field=field[parts.shift()]);
+  if block
+    - var oldParent = ctxt.form
+    - ctxt.form = {prefix:oldParent.prefix+'.'+path, model:field, data}
+    block
+    - ctxt.form = oldParent
+  else
+    +field(field, data, ctxt.form.prefix+'.'+path)
 
 mixin schemaFields(fields, data, prefix)
   each attr, attrName in fields

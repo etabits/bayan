@@ -44,19 +44,23 @@ Bayan.getFormData = function(form) {
   return data[$(form).attr('data-prefix')]
 }
 
-Bayan.init = function() {
-  $('.bayan-template').toArray().reverse().forEach(function(tpl) {
+Bayan.init = function(parent) {
+  if (!parent) parent = document
+  $(parent).find('.bayan-template').toArray().reverse().forEach(function(tpl) {
     var innerHTML = tpl.innerHTML;
     tpl.innerHTML = ''
     $(tpl).attr('data-template-string', innerHTML)
   })
-  $(document).ready(Bayan.processNewElements)
+  $(document).ready(function() {
+    Bayan.processNewElements(parent)
+  })
 }
 
-Bayan.processNewElements = function() {
-  $('select').material_select();
+Bayan.processNewElements = function(parent) {
+  if (!parent) parent = document
+  $(parent).find('select').material_select();
 
-  $('.autocomplete').each(function(c, elem) {
+  $(parent).find('.autocomplete').each(function(c, elem) {
     var $elem = $(elem)
     var options = $elem.attr('data-options')
     $elem.attr('data-options', null)
@@ -81,8 +85,7 @@ Bayan.processNewElements = function() {
     });
   })
 
-
-  $('.chips-autocomplete').each(function(c, elem) {
+  $(parent).find('.chips-autocomplete').each(function(c, elem) {
     var $elem = $(elem)
     var options = $elem.attr('data-options')
     $elem.attr('data-options', null)
@@ -109,6 +112,8 @@ Bayan.processNewElements = function() {
       }
     })
   })
+
+  Materialize.updateTextFields();
 }
 
 Bayan.init()

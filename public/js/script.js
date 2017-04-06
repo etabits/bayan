@@ -23,6 +23,27 @@ Bayan.UI.arrayAdd = function (btn) {
   Bayan.processNewElements()
 }
 
+Bayan.getFormData = function(form) {
+  var data = {}
+  for (var i = 0; i<form.elements.length; ++i) {
+    var subData = data
+    var elem = form.elements[i]
+    if (!elem.name) continue;
+    for (var parts = elem.name.split('.'); parts.length > 0; ) {
+      var p = parts.shift()
+      if (parts.length==0) {
+        subData[p] = $(elem).val()
+      } else {
+        if (!subData[p]) {
+          subData[p] = {}
+        }
+        subData = subData[p]
+      }
+    }
+  }
+  return data[$(form).attr('data-prefix')]
+}
+
 Bayan.init = function() {
   $('.bayan-template').toArray().reverse().forEach(function(tpl) {
     var innerHTML = tpl.innerHTML;

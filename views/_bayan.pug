@@ -31,24 +31,14 @@ mixin schemaFields(fields, data, prefix)
   each attr, attrName in fields
     - if ('$'==attrName) continue;
     - var id = prefix+'.'+attrName
-    //- console.log(id, attrName, attr)
-    //- - continue
     +field(attr, data && data[attrName], id)
 
 mixin field_bare(attr, data, id)
-  //- console.log(attr.$.fieldType)
   if pug_mixins['_' + attr.$.fieldType]
     !=`<!-- ${id}(${attr.$.fieldType}) -->`
     +#{'_' + attr.$.fieldType}(attr, data, id)
   else
     p: em _#{attr.$.fieldType} is not implemented yet...
-
-mixin f(path)
-  -
-    var field = ctxt.form.model;
-    for (var parts = path.split('.'); parts.length > 0; field=field[parts.shift()]);
-    - console.log(field)
-  +field(field, null, ctxt.form.prefix+'.'+path)
 
 mixin field(attr, data, id)
   - var wrapperOptions = {id, classes: 'input-type-'+attr.$.fieldType, $: attr.$}
@@ -61,10 +51,10 @@ mixin field(attr, data, id)
     +field_bare(attr, data, id)
 
 mixin _textarea(attr, data, id)
-  textarea.materialize-textarea(id=id, name=id,value=data,placeholder=attr.placeholder)&attributes(attributes)=data
+  textarea.materialize-textarea(id=id, name=id,value=data,placeholder=attr.$.placeholder)&attributes(attributes)=data
 
 mixin _string(attr, data, id)
-  input.validate(id=id, name=id, type='text',value=data,placeholder=attr.placeholder)&attributes(attributes)
+  input.validate(id=id, name=id, type='text',value=data,placeholder=attr.$.placeholder)&attributes(attributes)
 
 mixin _date(attr, data, id)
   +_string(attr, data, id)(type='date',class='datepicker')
@@ -74,16 +64,16 @@ mixin _number(attr, data, id)
 
 mixin _select(attr, data, id)
   select.icons(id=id, name=id)&attributes(attributes)
-    option(disabled,selected)=attr.$.placeholder || attr.$.label
+    option(disabled,selected=!data)=attr.$.placeholder || attr.$.label
     each opt,value in attr.$.enum
-      option(value=value,data-icon=opt.image)=opt.label
+      option(value=value,data-icon=opt.image,selected=value==data)=opt.label
 
 mixin _multi_select(attr, data, id)
   +_select(attr, data, id+'[]')(multiple)
 
 mixin _chips(attr, data, id)
   .bayan-hidden-fileds
-  .chips.chips-autocomplete(data-options=JSON.stringify(attr.enum),data-placeholder=attr.placeholder,data-field=id)
+  .chips.chips-autocomplete(data-options=JSON.stringify(attr.$.enum),data-placeholder=attr.$.placeholder,data-field=id)
 
 mixin _autocomplete(attr, data, id)
   input.autocomplete(id=id, name=id, type='text',value=data,placeholder=attr.placeholder,data-options=JSON.stringify(attr.$.enum))
@@ -124,7 +114,6 @@ mixin _boolean(attr, data, id)
       | Yes
 
 mixin field_wrapper(opts={})
-  //- - console.log('>>', opts)
   if opts.header
     .bayan-sub-container
       .bayan-sub-header=opts.header

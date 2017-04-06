@@ -1,13 +1,13 @@
-
-mixin schemaForm(s, data={},prefix='form')
-  - ctxt.form = {prefix, model:s}
-  form(method='post', target='tgt')&attributes(attributes)
+//- Exposed mixins (Only these two should be directly accessed)
+mixin form(model, data={},prefix='form')
+  - ctxt.form = {prefix, model, data}
+  form(method='post', data-prefix=prefix)&attributes(attributes)
     .card
       .card-content
         if block
           block
         else
-          +schemaFields(s, data, prefix)
+          +bayan_fields(model, data, prefix)
       .card-action
         button.btn.waves-effect.waves-light(type='submit')
           | Submit
@@ -25,77 +25,52 @@ mixin f(path)
     block
     - ctxt.form = oldParent
   else
-    +field(field, data, ctxt.form.prefix+'.'+path)
+    +bayan_field(field, data, ctxt.form.prefix+'.'+path)
 
-mixin schemaFields(fields, data, prefix)
+//- Used internally
+mixin bayan_fields(fields, data, prefix)
   each attr, attrName in fields
     - if ('$'==attrName) continue;
     - var id = prefix+'.'+attrName
-    +field(attr, data && data[attrName], id)
+    +bayan_field(attr, data && data[attrName], id)
 
-mixin field_bare(attr, data, id)
-  if pug_mixins['_' + attr.$.fieldType]
+mixin bayan_field_bare(attr, data, id)
+  if pug_mixins['bayan_widget_' + attr.$.fieldType]
     !=`<!-- ${id}(${attr.$.fieldType}) -->`
-    +#{'_' + attr.$.fieldType}(attr, data, id)
+    +#{'bayan_widget_' + attr.$.fieldType}(attr, data, id)
   else
-    p: em _#{attr.$.fieldType} is not implemented yet...
+    pre.red(dir='ltr'): em
+      strong bayan_widget_#{attr.$.fieldType}
+      |  is not implemented yet...
 
-mixin field(attr, data, id)
+mixin bayan_field(attr, data, id)
   - var wrapperOptions = {id, classes: 'input-type-'+attr.$.fieldType, $: attr.$}
   if 'object' == attr.$.fieldType || 'array' == attr.$.fieldType
     - wrapperOptions.header =attr.$.label
   else if ['string', 'number', 'autocomplete', 'date','select', 'textarea'].indexOf(attr.$.fieldType) !== -1
     - wrapperOptions.label = attr.$.label
     - wrapperOptions.classes += ' input-field'
-  +field_wrapper(wrapperOptions)
-    +field_bare(attr, data, id)
+  +bayan_field_wrapper(wrapperOptions)
+    +bayan_field_bare(attr, data, id)
 
-mixin _textarea(attr, data, id)
-  textarea.materialize-textarea(id=id, name=id,value=data,placeholder=attr.$.placeholder)&attributes(attributes)=data
+mixin bayan_widget_object(attr, data, id)
+  +bayan_fields(attr, data, id)
 
-mixin _string(attr, data, id)
-  input.validate(id=id, name=id, type='text',value=data,placeholder=attr.$.placeholder)&attributes(attributes)
-
-mixin _date(attr, data, id)
-  +_string(attr, data, id)(type='date',class='datepicker')
-
-mixin _number(attr, data, id)
-  +_string(attr, data, id)(type='number')
-
-mixin _select(attr, data, id)
-  select.icons(id=id, name=id)&attributes(attributes)
-    option(disabled,selected=!data)=attr.$.placeholder || attr.$.label
-    each opt,value in attr.$.enum
-      option(value=value,data-icon=opt.image,selected=value==data)=opt.label
-
-mixin _multi_select(attr, data, id)
-  +_select(attr, data, id+'[]')(multiple)
-
-mixin _chips(attr, data, id)
-  .bayan-hidden-fileds
-  .chips.chips-autocomplete(data-options=JSON.stringify(attr.$.enum),data-placeholder=attr.$.placeholder,data-field=id)
-
-mixin _autocomplete(attr, data, id)
-  input.autocomplete(id=id, name=id, type='text',value=data,placeholder=attr.placeholder,data-options=JSON.stringify(attr.$.enum))
-
-mixin _object(attr, data, id)
-  +schemaFields(attr, data, id)
-
-mixin _array(attr, data, id)
+mixin bayan_array(attr, data, id)
   .bayan-template(id='bayan-template-'+id,data-next-number=data? data.length : 1)
-    +array_element(attr['0'], null, id, '{NUM}')
+    +bayan_array_element(attr['0'], null, id, '{NUM}')
 
   if data && data.length
     each val,index in data
-      +array_element(attr['0'], val, id, index)
+      +bayan_array_element(attr['0'], val, id, index)
   else
-      +array_element(attr['0'], null, id, 0)
+      +bayan_array_element(attr['0'], null, id, 0)
 
   div.right-align.bayan-add-array-element.teal
     button.btn-floating.waves-effect.waves-light.white(type='button',onclick='Bayan.UI.arrayAdd(this)')
       i.material-icons.teal-text add
 
-mixin array_element(attr, data, id, num)
+mixin bayan_array_element(attr, data, id, num)
   div(class=('{NUM}'==num)?'bayan-array-template':'bayan-array-element')
     .row
       .col.s3.m2.l1
@@ -105,28 +80,57 @@ mixin array_element(attr, data, id, num)
       .col.s9.m10.l11
         +field_bare(attr, data, id+'.'+num)
 
-mixin _boolean(attr, data, id)
+mixin bayan_field_wrapper(opts={})
+  if opts.header
+    .bayan-sub-container
+      .bayan-sub-header=opts.header
+      .bayan-sub-content
+        +bayan_field_wrapper_bare(opts)
+          block
+  else
+    .row
+      .col.s12(class=opts.classes)
+        +bayan_field_wrapper_bare(opts)
+          block
+
+mixin bayan_field_wrapper_bare(opts)
+  if opts.label
+    label(for=opts.id, class=['date', 'select'].includes(opts.$.fieldType)?'active':'')=opts.label
+  block
+
+//- bayan_widget_*
+mixin bayan_widget_string(attr, data, id)
+  input.validate(id=id, name=id, type='text',value=data,placeholder=attr.$.placeholder)&attributes(attributes)
+
+mixin bayan_widget_date(attr, data, id)
+  +bayan_widget_string(attr, data, id)(type='date',class='datepicker')
+
+mixin bayan_widget_number(attr, data, id)
+  +bayan_widget_string(attr, data, id)(type='number')
+
+mixin bayan_widget_textarea(attr, data, id)
+  textarea.materialize-textarea(id=id, name=id,value=data,placeholder=attr.$.placeholder)&attributes(attributes)=data
+
+mixin bayan_widget_select(attr, data, id)
+  select.icons(id=id, name=id)&attributes(attributes)
+    option(disabled,selected=!data)=attr.$.placeholder || attr.$.label
+    each opt,value in attr.$.enum
+      option(value=value,data-icon=opt.image,selected=value==data)=opt.label
+
+mixin bayan_widget_multi_select(attr, data, id)
+  +bayan_widget_select(attr, data, id+'[]')(multiple)
+
+mixin bayan_widget_chips(attr, data, id)
+  .bayan-hidden-fileds
+  .chips.chips-autocomplete(data-options=JSON.stringify(attr.$.enum),data-placeholder=attr.$.placeholder,data-field=id)
+
+mixin bayan_widget_autocomplete(attr, data, id)
+  input.autocomplete(id=id, name=id, type='text',value=data,placeholder=attr.placeholder,data-options=JSON.stringify(attr.$.enum))
+
+mixin bayan_widget_boolean(attr, data, id)
   .switch
     label
       | #{attr.label}: No
       input(id=id, name=id, type='checkbox',checked=!!data)
       span.lever
       | Yes
-
-mixin field_wrapper(opts={})
-  if opts.header
-    .bayan-sub-container
-      .bayan-sub-header=opts.header
-      .bayan-sub-content
-        +_field_wrapper(opts)
-          block
-  else
-    .row
-      .col.s12(class=opts.classes)
-        +_field_wrapper(opts)
-          block
-
-mixin _field_wrapper(opts)
-  if opts.label
-    label(for=opts.id, class=['date', 'select'].includes(opts.$.fieldType)?'active':'')=opts.label
-  block

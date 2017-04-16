@@ -1,0 +1,26 @@
+{
+  "name": "bayan-core",
+  "version": "0.1.1",
+  "description": "Bayan Core",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "standard --verbose && jshint --verbose --exclude-path .gitignore .",
+    "test": "nyc ava",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "author": "Hasan Arous <arous.hasan@gmail.com> (http://www.etabits.com/)",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^0.19.1",
+    "coveralls": "^2.13.0",
+    "jshint": "^2.9.4",
+    "nyc": "^10.2.0",
+    "standard": "^10.0.2"
+  },
+  "jshintConfig": {
+    "asi": true,
+    "esversion": 6,
+    "strict": true,
+    "node": true
+  }
+}

@@ -1,0 +1,22 @@
+extends layout
+mixin displayData(header, data)
+  table.bordered.striped.highlight.responsive-table
+    thead
+      tr
+        th
+        each h in header
+          th=bayan.schema.$.attributesByPath[h].$.label
+    tbody
+      each r in data
+        tr
+          td
+            a(href='./'+r._id)
+              i.material-icons edit
+          each h in header
+            td=r[h]
+
+block content
+  +displayData(bayan.header, rows)
+  .fixed-action-btn
+    a.btn-floating.btn-large.red(href='./+')
+      i.large.material-icons add

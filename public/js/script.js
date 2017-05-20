@@ -87,20 +87,45 @@ Bayan.processNewElements = function(parent) {
 
   $(parent).find('.chips-autocomplete').each(function(c, elem) {
     var $elem = $(elem)
+    if ($elem.data('bayan-processed')) return;
+    $elem.data('bayan-processed', true)
     var options = $elem.attr('data-options')
-    $elem.attr('data-options', null)
-    var hiddenFieldsContainer = $elem.siblings('.bayan-hidden-fileds')
+    // console.log(elem)
+    var $hiddenFieldsContainer = $elem.siblings('.bayan-hidden-fileds')
     var fieldName = $elem.attr('data-field')
-    if (!options) return;
-    options = JSON.parse(options);
-    console.log(options)
+    options = options && JSON.parse(options);
+    // console.log(options)
+    var endpoint = $elem.attr('data-endpoint');
+    var data = []
+    $hiddenFieldsContainer.find('input').each(function() {
+      var $this = $(this)
+      data.push( {
+        id: $this.val(),
+        tag: $this.attr('data-label')
+      })
+    })
+    // console.log('!', data)
     $elem.material_chip({
-      autocompleteData: options,
+      data,
+      autocompleteOptions: {
+        data: options,
+        endpoint: options? null : function(val, cb) {
+          $.getJSON(endpoint.replace('%s', encodeURIComponent(val)), function(data) {
+            var newData = {}
+            for (var i = 0; i < data.length; ++i) {
+              newData[data[i].id || data[i]._id] = {label: data[i].title}
+            }
+            cb(newData)
+          })
+        }
+      },
       secondaryPlaceholder: $elem.attr('data-placeholder') || '+'
     });
+    // console.log('hey', elem)
     $elem.on('chip.add chip.delete', function() {
       var data = $(this).material_chip('data')
-      hiddenFieldsContainer.innerHTML = ''
+      // console.log('>>', data)
+      $hiddenFieldsContainer.html('')
       for (var i = 0; i<data.length; ++i) {
         var value = data[i].id
         if (!value) continue
@@ -108,7 +133,7 @@ Bayan.processNewElements = function(parent) {
           type: 'hidden',
           name: fieldName+'[]',
           value: value
-        }).appendTo(hiddenFieldsContainer)
+        }).appendTo($hiddenFieldsContainer)
       }
     })
   })

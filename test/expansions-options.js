@@ -17,7 +17,8 @@ test('with options', t => {
     },
     htmlWidget: 'select',
     label: 'Single',
-    type: null
+    type: null,
+    path: 'single'
   })
   var many = helpers.expandAttr({
     $: {
@@ -33,6 +34,7 @@ test('with options', t => {
     },
     htmlWidget: 'multi_select',
     label: 'Many',
-    type: null
+    type: null,
+    path: 'many'
   })
 })

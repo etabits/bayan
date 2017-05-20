@@ -9,7 +9,8 @@ test('basic types', t => {
       type: 'text',
       dataType: String,
       htmlWidget: 'input',
-      label: 'Str'
+      label: 'Str',
+      path: 'str'
     }
   })
 
@@ -18,7 +19,8 @@ test('basic types', t => {
       type: 'number',
       dataType: Number,
       htmlWidget: 'input',
-      label: ''
+      label: '',
+      path: ''
     }
   })
 })
@@ -29,7 +31,8 @@ test('other input types', t => {
       type: 'color',
       dataType: String,
       htmlWidget: 'input',
-      label: ''
+      label: '',
+      path: ''
     }
   })
   t.deepEqual(helpers.expandAttr({$: {type: 'email'}}, ''), {
@@ -37,7 +40,8 @@ test('other input types', t => {
       type: 'email',
       dataType: String,
       htmlWidget: 'input',
-      label: ''
+      label: '',
+      path: ''
     }
   })
 })

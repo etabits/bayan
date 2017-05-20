@@ -14,21 +14,24 @@ test('object', t => {
       type: 'object',
       dataType: Object,
       label: 'Nested',
-      htmlWidget: 'object'
+      htmlWidget: 'object',
+      path: 'nested'
     },
     sub: {
       $: {
         type: 'object',
         dataType: Object,
         label: 'Sub',
-        htmlWidget: 'object'
+        htmlWidget: 'object',
+        path: 'nested.sub'
       },
       str: {
         $: {
           type: 'text',
           dataType: String,
           label: 'Str',
-          htmlWidget: 'input'
+          htmlWidget: 'input',
+          path: 'nested.sub.str'
         }
       }
     }
@@ -44,23 +47,46 @@ test('array', t => {
       type: 'array',
       dataType: Array,
       label: 'Nested',
-      htmlWidget: 'array'
+      htmlWidget: 'array',
+      path: 'nested'
     },
     '0': {
       $: {
         type: 'object',
         dataType: Object,
         htmlWidget: 'object',
-        label: '0'
+        label: '0',
+        path: 'nested.0'
       },
       name: {
         $: {
           type: 'text',
           dataType: String,
           label: 'Name',
-          htmlWidget: 'input'
+          htmlWidget: 'input',
+          path: 'nested.0.name'
         }
       }
     }
   })
+})
+
+test('match', t => {
+  var a = helpers.expandAttr({
+    type: {
+      sub1: String,
+      sub2: String
+    },
+    meta1: 1,
+    meta2: 2
+  })
+  var b = helpers.expandAttr({
+    $: {
+      meta1: 1,
+      meta2: 2
+    },
+    sub1: String,
+    sub2: String
+  })
+  t.deepEqual(a, b)
 })

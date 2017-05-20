@@ -14,7 +14,8 @@ test('basic schema', t => {
       dataType: String,
       htmlWidget: 'input',
       type: 'text',
-      label: 'Name'
+      label: 'Name',
+      path: 'name'
     }
   })
 })

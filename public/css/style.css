@@ -1,0 +1,56 @@
+.switch {
+  margin-bottom: 1em;
+}
+.bayan-template {
+  display: none;
+}
+.bayan-sub-container {
+  border-left: 3px solid #009688;
+}
+.bayan-sub-container > .bayan-sub-header {
+  background: #009688;
+}
+.bayan-sub-container > .bayan-sub-content > .bayan-array-element {
+  border-bottom: 1px solid #009688;
+}
+.bayan-sub-container > .bayan-sub-content > .bayan-array-element > .row > .col > .bayan-array-number {
+  background: #009688;
+}
+.bayan-sub-container {
+  margin-bottom: 1em;
+}
+.bayan-sub-container > .bayan-sub-header {
+  color: white;
+  text-align: center;
+  font-size: 1.3em;
+  margin-bottom: 1px;
+}
+.bayan-sub-container > .bayan-sub-content > div {
+  padding-left: 7px;
+}
+.bayan-sub-container > .bayan-sub-content > .bayan-array-element {
+  position: relative;
+}
+.bayan-sub-container > .bayan-sub-content > .bayan-array-element:nth-child(odd) {
+  background-color: #efe;
+}
+.bayan-sub-container > .bayan-sub-content > .bayan-array-element > .row > .col > .bayan-array-number {
+  text-align: center;
+  font-size: 2em;
+  position: absolute;
+  top: 0;
+  bottom: 0px;
+  right: 0;
+  padding: .5em;
+  border-bottom: 1px solid white;
+}
+.bayan-sub-container > .bayan-sub-content > .bayan-array-element > .row > .col > .bayan-array-number button {
+  color: white;
+}
+.bayan-sub-container > .bayan-sub-content > .bayan-add-array-element {
+  padding: 10px;
+}
+pre {
+  background: #eee;
+  border: 2px solid darkgray;
+}

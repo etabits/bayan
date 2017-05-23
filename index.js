@@ -35,9 +35,9 @@ class MongooseConnector {
     if (!row) {
       return this.model.create(data)
     }
-    return this.model.findByIdAndUpdate(row._id, {
-      $set: data
-    })
+    Object.assign(row, data)
+    // return console.log(row, data, row.save)
+    return row.save()
   }
 
   static attrFrom (attr) {

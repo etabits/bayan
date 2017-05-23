@@ -1,5 +1,6 @@
 {
   "name": "bayan-connector-mongoose",
+  "version": "0.1.0",
   "scripts": {
     "pretest": "standard --verbose && jshint --verbose --exclude-path .gitignore .",
     "test": "nyc ava",

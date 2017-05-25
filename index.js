@@ -66,7 +66,8 @@ class MongooseConnector {
     if (typeof attr.type !== 'undefined' && typeof attr.$ !== 'undefined') {
       for (var key in attr) {
         if (key === '$') continue
-        attr.$[key] = attr[key]
+        // If it is already set inside $, it takes priority
+        attr.$[key] = attr.$[key] || attr[key]
         delete attr[key]
       }
     }

@@ -114,10 +114,14 @@ class Admin {
   }
 
   _model_update (req, res, next) {
-    var parsedData = bayanForm.parseFormData(req.body, 'form')
-    Object.assign(parsedData, res.locals.bayan.conditions || {})
-    // return console.log(parsedData)
-    res.locals.bayan.connector.update(res.locals.row, parsedData)
+    processFiles(req, {
+      upload: this.options.upload,
+      filesModel: this.models.files
+    }).then(function (requestData) {
+      var parsedData = bayanForm.parseFormData(requestData, 'form')
+      Object.assign(parsedData, res.locals.bayan.conditions || {})
+      return res.locals.bayan.connector.update(res.locals.row, parsedData)
+    })
     .then(function () {
       res.redirect('./')
     })
@@ -136,6 +140,54 @@ class Admin {
       ctxt: {}
     })
   }
+}
+
+function processFiles(req, opts) {
+  var promises = []
+  var requestData = Object.assign({}, req.body)
+
+  for (var i = req.files.length - 1; i >= 0; i--) {
+    requestData[req.files[i].fieldname] = null
+    promises.push(singleFileUploader(req.files[i], opts))
+  }
+
+  return Promise.all(promises).then(function (results) {
+    for (var i = req.files.length - 1; i >= 0; i--) {
+      if (!requestData[req.files[i].fieldname]) {
+        requestData[req.files[i].fieldname] = results[i].id
+      } else {
+        if (!Array.isArray(requestData[req.files[i].fieldname])) {
+          requestData[req.files[i].fieldname] = [requestData[req.files[i].fieldname]]
+        }
+        requestData[req.files[i].fieldname].push(results[i].id)
+      }
+    }
+    return requestData
+  })
+}
+
+const l = require('l')
+const fs = require('fs')
+const crypto = require('crypto')
+const sha1sum = (s)=> crypto.createHash('sha1').update(s).digest("hex")
+function singleFileUploader(finfo, opts) {
+  finfo.sha1 = sha1sum(finfo.buffer)
+  console.log(finfo, opts)
+
+  return l([
+    function (n, done) {
+      fs.mkdir(`${opts.upload.root}/${finfo.sha1.substr(0, 3)}`, ()=>done())
+    }, function (res, done) {
+      fs.writeFile(`${opts.upload.root}/${finfo.sha1.substr(0, 3)}/${finfo.sha1.substr(3)}`, finfo.buffer, done)
+    }
+  ])().then(function () {
+    return opts.filesModel.connector.create({
+      mimeType: finfo.mimetype,
+      size: finfo.size,
+      sha1: finfo.sha1,
+      url: `${opts.upload.rel}${finfo.sha1.substr(0, 3)}/${finfo.sha1.substr(3)}`
+    })
+  })
 }
 
 module.exports = Admin

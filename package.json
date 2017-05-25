@@ -10,5 +10,6 @@
     "bayan-form": "0.1"
   },
   "dependencies": {
+    "l": "^0.5.1"
   }
 }

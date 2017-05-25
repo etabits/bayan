@@ -109,12 +109,23 @@ mixin bayan_widget_date(attr, data, id)
   +bayan_widget_input(attr, data, id)(type='date',class='datepicker')
 
 mixin bayan_widget_file(attr, data, id)
-  .file-field.input-field
-    .btn
-      span=attr.$.label
-      +bayan_widget_input(attr, data, id)(multiple=Array.isArray(attr.$.dataType))
-    .file-path-wrapper
-      input.file-path.validate(type='text')
+  - var multiple = Array.isArray(attr.$.dataType)
+  .row
+    .col.s12.m6
+      .file-field.input-field
+        .btn
+          span=attr.$.label
+          +bayan_widget_input(attr, data, id)(multiple=multiple)
+        .file-path-wrapper
+          input.file-path.validate(type='text')
+    .col.s12.m6
+      each f in multiple? data : [data]
+        - if (!f || !f.url) continue;
+        a(target='_blank',href=f.url)
+          if f.mimeType.substr(0, 6)=='image/'
+            img.responsive-img(src=f.url, alt=f.originalName)
+          else
+            =f.originalName
 
 mixin bayan_widget_checkbox(attr, data, id)
   p

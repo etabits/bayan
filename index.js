@@ -29,6 +29,11 @@ class MongooseConnector {
     if (pathsToPopulate.length) ret = ret.populate(pathsToPopulate.join(' '))
     return ret
   }
+
+  create (data) {
+    return this.update(null, data)
+  }
+
   update (row, data) {
     // console.log(data)
     // return

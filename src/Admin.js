@@ -45,7 +45,7 @@ class Admin {
       strict: true
     })
     router.use('/_statics', express.static(path.join(__dirname, '../node_modules/bayan-form/public')))
-    router.use(bodyParser.urlencoded({extended: false}))
+    // router.use(bodyParser.urlencoded({extended: false}))
     router.use(function (req, res, next) {
       Object.assign(res.locals, self.resLocals, {
         req: {

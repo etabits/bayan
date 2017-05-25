@@ -185,6 +185,7 @@ function singleFileUploader(finfo, opts) {
       mimeType: finfo.mimetype,
       size: finfo.size,
       sha1: finfo.sha1,
+      originalName: finfo.originalname,
       url: `${opts.upload.rel}${finfo.sha1.substr(0, 3)}/${finfo.sha1.substr(3)}`
     })
   })

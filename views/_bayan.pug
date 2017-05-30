@@ -30,7 +30,7 @@ mixin f(path)
 //- Used internally
 mixin bayan_fields(fields, data, prefix)
   each attr, attrName in fields
-    - if ('$'==attrName) continue;
+    - if ('$'==attrName || attr.$.hide) continue;
     - var id = prefix+'.'+attrName
     +bayan_field(attr, data && data[attrName], id)
 
@@ -115,7 +115,9 @@ mixin bayan_widget_file(attr, data, id)
       .file-field.input-field
         .btn
           span=attr.$.label
-          +bayan_widget_input(attr, data, id)(multiple=multiple)
+          +bayan_widget_input(attr, null, id)(multiple=multiple)
+          if data
+            +bayan_widget_input(attr, null, id)(type='hidden', value=data.id)
         .file-path-wrapper
           input.file-path.validate(type='text')
     .col.s12.m6

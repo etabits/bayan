@@ -146,9 +146,9 @@ function processFiles(req, opts) {
   var promises = []
   var requestData = Object.assign({}, req.body)
 
-  for (var i = req.files.length - 1; i >= 0; i--) {
+  for (var i = 0; i < req.files.length; ++i) {
     requestData[req.files[i].fieldname] = null
-    promises.push(singleFileUploader(req.files[i], opts))
+    promises.push((opts.upload.handler || singleFileUploader)(req.files[i], opts))
   }
 
   return Promise.all(promises).then(function (results) {

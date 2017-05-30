@@ -1,4 +1,4 @@
 extends layout
 include ../node_modules/bayan-form/views/_bayan
 block content
-  +form(bayan.schema, row)(method='post')
+  +form(bayan.schema, row)(method='post',enctype='multipart/form-data')

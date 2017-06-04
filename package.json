@@ -1,8 +1,11 @@
 {
   "name": "bayan-core",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Bayan Core",
   "main": "index.js",
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "pretest": "standard --verbose && jshint --verbose --exclude-path .gitignore .",
     "test": "nyc ava",

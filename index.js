@@ -49,8 +49,7 @@ class MongooseConnector {
     if (typeof attr === 'object') {
       if (Array.isArray(attr)) {
         attr = attr.slice(0) // copying
-        // console.log('>>>', attr)
-        if (attr[0].type && attr[0].type.name === 'ObjectId' && typeof attr[0].ref === 'string') {
+        if (typeof attr[0].ref === 'string') {
           attr = Object.assign({}, attr[0], {
             type: [String],
             ref: attr[0].ref

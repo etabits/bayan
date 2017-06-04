@@ -1,6 +1,6 @@
 {
   "name": "bayan-admin",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Bayan Admin",
   "main": "index.js",
   "author": "Hasan Arous <arous.hasan@gmail.com> (http://www.etabits.com/)",
@@ -11,5 +11,9 @@
   },
   "dependencies": {
     "l": "^0.5.1"
-  }
+  },
+  "files": [
+    "src/",
+    "views/"
+  ]
 }

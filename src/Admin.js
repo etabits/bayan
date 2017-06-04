@@ -1,9 +1,8 @@
 'use strict'
-var path = require('path')
-var express = require('express')
-var bodyParser = require('body-parser')
-
-var bayanForm = require('bayan-form')
+const path = require('path')
+const express = require('express')
+const bayanForm = require('bayan-form')
+const qs = require('qs')
 
 class Admin {
   constructor (opts) {
@@ -13,7 +12,10 @@ class Admin {
     for (var modelName in this.models) {
       // console.log(this.models[modelName])
       // this.models[modelName].bayanModel = new bayan.Schema(this.models[modelName].model.schema.obj)
-      this.models[modelName].schema = this.models[modelName].connector.bayanSchema
+      this.models[modelName] = Object.assign({
+        schema: this.models[modelName].connector.bayanSchema,
+        rowActions: []
+      }, this.models[modelName])
     }
     // console.log(this.models)
     this.resLocals = {
@@ -44,8 +46,7 @@ class Admin {
       caseSensitive: true,
       strict: true
     })
-    router.use('/_statics', express.static(path.join(__dirname, '../node_modules/bayan-form/public')))
-    // router.use(bodyParser.urlencoded({extended: false}))
+    router.use('/_statics', express.static(path.resolve(path.dirname(require.resolve('bayan-form')), 'public')))
     router.use(function (req, res, next) {
       Object.assign(res.locals, self.resLocals, {
         req: {
@@ -71,6 +72,7 @@ class Admin {
           return next(404)
         }
         res.locals.row = row
+        res.locals.title = row.title
         next()
       })
       .catch((e) => console.error(e))
@@ -89,16 +91,17 @@ class Admin {
 
   _model_index (req, res, next) {
     var self = this
-    var conditions = Object.assign({}, res.locals.bayan.conditions || {})
+    var conditions = Object.assign({}, res.locals.bayan.conditions || {}, req.query.c)
     // console.log(conditions)
-    res.locals.bayan.connector.find(conditions)
+    res.locals.bayan.connector.find(conditions, {q: req.query.q})
     .then(function (rows) {
       if (req.params.ext === '.json') {
         return res.send(rows)
       }
       self._render(req, res, {
         templateName: 'collection',
-        rows
+        rows,
+        title: res.locals.bayan.title
       })
     })
     .catch((e) => console.error(e))
@@ -129,6 +132,7 @@ class Admin {
   }
 
   _render (req, res, params) {
+    res.locals.createUrl = (url, opts) => createUrl(req, url, opts)
     res.render(this.opts.templatesPath.replace('%s', params.templateName), params)
   }
 
@@ -142,7 +146,13 @@ class Admin {
   }
 }
 
-function processFiles(req, opts) {
+function createUrl (req, url, opts) {
+  return url + '?' + qs.stringify({
+    c: req.query.c
+  })
+}
+
+function processFiles (req, opts) {
   var promises = []
   var requestData = Object.assign({}, req.body)
 
@@ -169,14 +179,14 @@ function processFiles(req, opts) {
 const l = require('l')
 const fs = require('fs')
 const crypto = require('crypto')
-const sha1sum = (s)=> crypto.createHash('sha1').update(s).digest("hex")
-function singleFileUploader(finfo, opts) {
+const sha1sum = (s) => crypto.createHash('sha1').update(s).digest('hex')
+function singleFileUploader (finfo, opts) {
   finfo.sha1 = sha1sum(finfo.buffer)
   console.log(finfo, opts)
 
   return l([
     function (n, done) {
-      fs.mkdir(`${opts.upload.root}/${finfo.sha1.substr(0, 3)}`, ()=>done())
+      fs.mkdir(`${opts.upload.root}/${finfo.sha1.substr(0, 3)}`, () => done())
     }, function (res, done) {
       fs.writeFile(`${opts.upload.root}/${finfo.sha1.substr(0, 3)}/${finfo.sha1.substr(3)}`, finfo.buffer, done)
     }

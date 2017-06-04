@@ -1,6 +1,8 @@
 doctype html
 html
   head
+    meta(charset='UTF-8')
+    title=title
     each s in statics.css
       link(rel="stylesheet", href=s)
   body
@@ -10,10 +12,9 @@ html
         ul.left.hide-on-med-and-down#nav-mobile
           each m, slug in admin.models
             li: a(href=`${req.baseUrl}/${slug}/`)=m.title
-    h1=title
     .container
       block content
 
     each s in statics.js
       script(type='text/javascript', src=s)
-      
+    block post-body

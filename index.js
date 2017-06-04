@@ -14,7 +14,13 @@ class MongooseConnector {
     }
   }
 
-  find (conditions) {
+  find (conditions, opts) {
+    // FIXMEPLZ loop all string fields or those with a flag?
+    if (opts.q) {
+      conditions.$or = [{
+        title: new RegExp(opts.q, 'i')
+      }]
+    }
     return this.model.find(conditions).limit(100)
   }
   findById (id) {
@@ -23,9 +29,10 @@ class MongooseConnector {
 
     for (var path in this.bayanSchema.$.attributesByPath) {
       if (this.bayanSchema.$.attributesByPath[path].$.ref) {
-        pathsToPopulate.push(path.replace(/\.0\./g, '.'))
+        pathsToPopulate.push(path.replace(/\.0\./g, '.').replace(/\.0$/, ''))
       }
     }
+
     if (pathsToPopulate.length) ret = ret.populate(pathsToPopulate.join(' '))
     return ret
   }

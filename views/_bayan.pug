@@ -149,6 +149,8 @@ mixin bayan_widget_multi_select(attr, data, id)
 mixin bayan_widget_chips(attr, data, id)
   .bayan-hidden-fileds
     each d in (data || [])
+      if !d
+        - continue
       input(type='hidden', name=id+'[]', value=d.id, data-label=d.title)
   .chips.chips-autocomplete(data-options=JSON.stringify(attr.$.enum),data-endpoint=attr.$.endpoint
       data-placeholder=attr.$.placeholder,data-field=id)

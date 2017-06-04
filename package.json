@@ -1,11 +1,16 @@
 {
   "name": "bayan-form",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Bayan Form",
   "main": "index.js",
   "author": "Hasan Arous <arous.hasan@gmail.com> (http://www.etabits.com/)",
   "license": "MIT",
   "dependencies": {
     "lodash.set": "^4.3.2"
-  }
+  },
+  "files": [
+    "public/css/style.css",
+    "public/js/script.css",
+    "views"
+  ]
 }

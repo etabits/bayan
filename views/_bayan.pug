@@ -30,7 +30,7 @@ mixin f(path)
 //- Used internally
 mixin bayan_fields(fields, data, prefix)
   each attr, attrName in fields
-    - if ('$'==attrName || attr.$.hide) continue;
+    - if ('$'==attrName || attr.$.skip) continue;
     - var id = prefix+'.'+attrName
     +bayan_field(attr, data && data[attrName], id)
 
@@ -44,7 +44,7 @@ mixin bayan_field_bare(attr, data, id)
       |  is not implemented yet...
 
 mixin bayan_field(attr, data, id)
-  - var wrapperOptions = {id, classes: 'input-type-'+attr.$.type, $: attr.$}
+  - var wrapperOptions = {id, classes: 'input-type-'+attr.$.type, $: attr.$, hide:attr.$.hide}
   if 'object' == attr.$.type || 'array' == attr.$.type
     - wrapperOptions.header =attr.$.label
   else if ['input', 'textarea', 'select', 'multi_select', 'chips'].indexOf(attr.$.htmlWidget)!==-1
@@ -81,7 +81,12 @@ mixin bayan_array_element(attr, data, id, num)
         +bayan_field_bare(attr, data, id+'.'+num)
 
 mixin bayan_field_wrapper(opts={}, data)
-  if opts.header
+  if opts.hide
+    div(style='display: none')
+      +bayan_field_wrapper_bare(opts, data)
+        block
+
+  else if opts.header
     fieldset.bayan-sub-container
       legend.bayan-sub-header=opts.header
       .bayan-sub-content

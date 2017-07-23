@@ -57,12 +57,17 @@ class Admin {
       next()
     })
 
-    router.get('/', (req, res) => res.send('from router'))
+    router.get('/', function (req, res, next) {
+      self._render(req, res, {
+        templateName: 'index'
+      })
+    })
     router.param('model_name', function (req, res, next, model_name) {
       res.locals.bayan = self.models[model_name]
       if (!res.locals.bayan) {
         return next(404)
       }
+      res.locals.conditions = Object.assign({}, res.locals.bayan.conditions || {}, req.query.c)
       next()
     })
     router.param('id', function (req, res, next, id) {
@@ -80,7 +85,7 @@ class Admin {
     router.route('/:model_name:ext(/|.json)')
       .get(this._model_index.bind(this))
     router.route('/:model_name/\\+')
-      .get(this._model_add.bind(this))
+      .get(this._model_edit.bind(this))
       .post(this._model_update.bind(this))
     router.route('/:model_name/:id')
       .get(this._model_edit.bind(this))
@@ -91,9 +96,7 @@ class Admin {
 
   _model_index (req, res, next) {
     var self = this
-    var conditions = Object.assign({}, res.locals.bayan.conditions || {}, req.query.c)
-    // console.log(conditions)
-    res.locals.bayan.connector.find(conditions, {q: req.query.q})
+    res.locals.bayan.connector.find(res.locals.conditions, {q: req.query.q})
     .then(function (rows) {
       if (req.params.ext === '.json') {
         return res.send(rows)
@@ -109,9 +112,14 @@ class Admin {
 
   _model_edit (req, res, next) {
     var self = this
+    res.locals.formOpts = {
+      prefix: 'form',
+      skipFields: Object.keys(res.locals.conditions)
+    }
 
     self._render(req, res, {
       templateName: 'edit',
+      hasFiles: !!self.options.upload,
       ctxt: {}
     })
   }
@@ -122,11 +130,11 @@ class Admin {
       filesModel: this.models.files
     }).then(function (requestData) {
       var parsedData = bayanForm.parseFormData(requestData, 'form')
-      Object.assign(parsedData, res.locals.bayan.conditions || {})
+      Object.assign(parsedData, res.locals.conditions || {})
       return res.locals.bayan.connector.update(res.locals.row, parsedData)
     })
     .then(function () {
-      res.redirect('./')
+      res.redirect(createUrl(req, './'))
     })
     .catch((e) => console.error(e))
   }
@@ -136,14 +144,6 @@ class Admin {
     res.render(this.opts.templatesPath.replace('%s', params.templateName), params)
   }
 
-  _model_add (req, res, next) {
-    var self = this
-
-    self._render(req, res, {
-      templateName: 'edit',
-      ctxt: {}
-    })
-  }
 }
 
 function createUrl (req, url, opts) {
@@ -155,6 +155,10 @@ function createUrl (req, url, opts) {
 function processFiles (req, opts) {
   var promises = []
   var requestData = Object.assign({}, req.body)
+
+  if (!req.files) {
+    return Promise.resolve(requestData)
+  }
 
   for (var i = 0; i < req.files.length; ++i) {
     requestData[req.files[i].fieldname] = null

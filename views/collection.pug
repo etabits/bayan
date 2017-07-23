@@ -16,7 +16,8 @@ mixin displayData(header, data)
             td=r[h]
           td
             each a in (bayan.rowActions)
-              a(href='/admin'+a.href.replace('{$row.id}',r.id))=a.label
+              a(href=a.href(r))=a.label
+              |  
 
 block content
   .row
@@ -29,5 +30,5 @@ block content
           label(for='search_q') Search
   +displayData(bayan.header, rows)
   .fixed-action-btn
-    a.btn-floating.btn-large.red(href='./+')
+    a.btn-floating.btn-large.red(href=createUrl('./+'))
       i.large.material-icons add

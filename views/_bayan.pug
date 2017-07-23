@@ -1,13 +1,21 @@
 //- Exposed mixins (Only these two should be directly accessed)
-mixin form(model, data={},prefix='form')
-  - ctxt.form = {prefix, model, data}
-  form(method='post', data-prefix=prefix)&attributes(attributes)
+mixin form(model, data={}, opts)
+  -
+    if (typeof opts=='string') {
+      opts = {prefix: opts}
+    } else {
+      opts = Object.assign({}, opts, {prefix:'form'})
+    }
+
+  - ctxt.form = {prefix: opts.prefix, model, data}
+
+  form(method='post', data-prefix=opts.prefix)&attributes(attributes)
     .card
       .card-content
         if block
           block
         else
-          +bayan_fields(model, data, prefix)
+          +bayan_fields(model, data, opts)
           .card-action
             button.btn.waves-effect.waves-light(type='submit')
               | Submit
@@ -28,10 +36,11 @@ mixin f(path)
     +bayan_field(field, data, ctxt.form.prefix+'.'+path)
 
 //- Used internally
-mixin bayan_fields(fields, data, prefix)
+mixin bayan_fields(fields, data, opts)
   each attr, attrName in fields
     - if ('$'==attrName || attr.$.skip) continue;
-    - var id = prefix+'.'+attrName
+    - var id = opts.prefix + '.' + attrName
+    - if (opts.skipFields && -1!=opts.skipFields.indexOf(attrName)) return;
     +bayan_field(attr, data && data[attrName], id)
 
 mixin bayan_field_bare(attr, data, id)
@@ -54,7 +63,7 @@ mixin bayan_field(attr, data, id)
     +bayan_field_bare(attr, data, id)
 
 mixin bayan_widget_object(attr, data, id)
-  +bayan_fields(attr, data, id)
+  +bayan_fields(attr, data, {prefix: id})
 
 mixin bayan_widget_array(attr, data, id)
   .bayan-template(id='bayan-template-'+id,data-next-number=data? data.length : 1)

@@ -113,7 +113,7 @@ Bayan.processNewElements = function(parent) {
           $.getJSON(endpoint.replace('%s', encodeURIComponent(val)), function(data) {
             var newData = {}
             for (var i = 0; i < data.length; ++i) {
-              newData[data[i].id || data[i]._id] = {label: data[i].title}
+              newData[data[i].id || data[i]._id] = {label: data[i].title || data[i].name}
             }
             cb(newData)
           })

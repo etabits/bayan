@@ -22,11 +22,15 @@ mixin form(model, data={}, opts)
               i.material-icons.right send
   - delete ctxt.form
 
-mixin f(path)
+mixin f(path, opts)
   -
     var field = ctxt.form.model;
     var data = ctxt.form.data;
     for (var parts = path.split('.'); parts.length > 0; data = data && data[parts[0]], field=field[parts.shift()]);
+
+    if (opts) {
+      field = Object.assign({}, field, {$: Object.assign({}, field.$, opts)})
+    }
   if block
     - var oldParent = ctxt.form
     - ctxt.form = {prefix:oldParent.prefix+'.'+path, model:field, data}

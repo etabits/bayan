@@ -25,5 +25,8 @@
     "esversion": 6,
     "strict": true,
     "node": true
+  },
+  "dependencies": {
+    "lodash.get": "^4.4.2"
   }
 }

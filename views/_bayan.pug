@@ -37,7 +37,7 @@ mixin f(path, opts)
     block
     - ctxt.form = oldParent
   else
-    +bayan_field(field, data, ctxt.form.prefix+'.'+path)
+    +bayan_field(field, data, ctxt.form.prefix+'.'+path)&attributes(attributes)
 
 //- Used internally
 mixin bayan_fields(fields, data, opts)
@@ -50,7 +50,7 @@ mixin bayan_fields(fields, data, opts)
 mixin bayan_field_bare(attr, data, id)
   if pug_mixins['bayan_widget_' + attr.$.htmlWidget]
     !=`<!-- ${id}(${attr.$.htmlWidget}) -->`
-    +#{'bayan_widget_' + attr.$.htmlWidget}(attr, data, id)
+    +#{'bayan_widget_' + attr.$.htmlWidget}(attr, data, id)&attributes(attributes)
   else
     pre.red(dir='ltr'): em
       strong bayan_widget_#{attr.$.htmlWidget}
@@ -64,7 +64,7 @@ mixin bayan_field(attr, data, id)
     - wrapperOptions.label = attr.$.label
     - wrapperOptions.classes += ' input-field'
   +bayan_field_wrapper(wrapperOptions, data)
-    +bayan_field_bare(attr, data, id)
+    +bayan_field_bare(attr, data, id)&attributes(attributes)
 
 mixin bayan_widget_object(attr, data, id)
   +bayan_fields(attr, data, {prefix: id})

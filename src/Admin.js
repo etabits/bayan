@@ -186,12 +186,11 @@ const crypto = require('crypto')
 const sha1sum = (s) => crypto.createHash('sha1').update(s).digest('hex')
 function singleFileUploader (finfo, opts) {
   finfo.sha1 = sha1sum(finfo.buffer)
-  console.log(finfo, opts)
 
   return l([
-    function (n, done) {
+    function (done) {
       fs.mkdir(`${opts.upload.root}/${finfo.sha1.substr(0, 3)}`, () => done())
-    }, function (res, done) {
+    }, function (done) {
       fs.writeFile(`${opts.upload.root}/${finfo.sha1.substr(0, 3)}/${finfo.sha1.substr(3)}`, finfo.buffer, done)
     }
   ])().then(function () {
@@ -200,7 +199,8 @@ function singleFileUploader (finfo, opts) {
       size: finfo.size,
       sha1: finfo.sha1,
       originalName: finfo.originalname,
-      url: `${opts.upload.rel}${finfo.sha1.substr(0, 3)}/${finfo.sha1.substr(3)}`
+      url: `${opts.upload.rel}${finfo.sha1.substr(0, 3)}/${finfo.sha1.substr(3)}`,
+      storage: `${opts.upload.root}/${finfo.sha1.substr(0, 3)}/${finfo.sha1.substr(3)}`,
     })
   })
 }

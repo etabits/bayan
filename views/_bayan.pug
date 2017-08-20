@@ -44,7 +44,7 @@ mixin bayan_fields(fields, data, opts)
   each attr, attrName in fields
     - if ('$'==attrName || attr.$.skip) continue;
     - var id = opts.prefix + '.' + attrName
-    - if (opts.skipFields && -1!=opts.skipFields.indexOf(attrName)) return;
+    - if (opts.skipFields && -1!=opts.skipFields.indexOf(attrName)) continue;
     +bayan_field(attr, data && data[attrName], id)
 
 mixin bayan_field_bare(attr, data, id)

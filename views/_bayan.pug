@@ -1,0 +1,184 @@
+//- Exposed mixins (Only these two should be directly accessed)
+mixin form(model, data={}, opts)
+  -
+    if (typeof opts=='string') {
+      opts = {prefix: opts}
+    } else {
+      opts = Object.assign({}, opts, {prefix:'form'})
+    }
+
+  - ctxt.form = {prefix: opts.prefix, model, data}
+
+  form(method='post', data-prefix=opts.prefix)&attributes(attributes)
+    .card
+      .card-content
+        if block
+          block
+        else
+          +bayan_fields(model, data, opts)
+          .card-action
+            button.btn.waves-effect.waves-light(type='submit')
+              | Submit
+              i.material-icons.right send
+  - delete ctxt.form
+
+mixin f(path, opts)
+  -
+    var field = ctxt.form.model;
+    var data = ctxt.form.data;
+    for (var parts = path.split('.'); parts.length > 0; data = data && data[parts[0]], field=field[parts.shift()]);
+
+    if (opts) {
+      field = Object.assign({}, field, {$: Object.assign({}, field.$, opts)})
+    }
+  if block
+    - var oldParent = ctxt.form
+    - ctxt.form = {prefix:oldParent.prefix+'.'+path, model:field, data}
+    block
+    - ctxt.form = oldParent
+  else
+    +bayan_field(field, data, ctxt.form.prefix+'.'+path)&attributes(attributes)
+
+//- Used internally
+mixin bayan_fields(fields, data, opts)
+  each attr, attrName in fields
+    - if ('$'==attrName || attr.$.skip) continue;
+    - var id = opts.prefix + '.' + attrName
+    - if (opts.skipFields && -1!=opts.skipFields.indexOf(attrName)) continue;
+    +bayan_field(attr, data && data[attrName], id)
+
+mixin bayan_field_bare(attr, data, id)
+  if pug_mixins['bayan_widget_' + attr.$.htmlWidget]
+    !=`<!-- ${id}(${attr.$.htmlWidget}) -->`
+    +#{'bayan_widget_' + attr.$.htmlWidget}(attr, data, id)&attributes(attributes)
+  else
+    pre.red(dir='ltr'): em
+      strong bayan_widget_#{attr.$.htmlWidget}
+      |  is not implemented yet...
+
+mixin bayan_field(attr, data, id)
+  - var wrapperOptions = {id, classes: 'input-type-'+attr.$.type + (attr.$.required?' input-required':''), $: attr.$, hide:attr.$.hide}
+  if 'object' == attr.$.type || 'array' == attr.$.type
+    - wrapperOptions.header =attr.$.label
+  else if ['input', 'textarea', 'select', 'multi_select', 'chips', 'date'].indexOf(attr.$.htmlWidget)!==-1
+    - wrapperOptions.label = attr.$.label
+    - wrapperOptions.classes += ' input-field'
+  +bayan_field_wrapper(wrapperOptions, data)
+    +bayan_field_bare(attr, data, id)&attributes(attributes)
+
+mixin bayan_widget_object(attr, data, id)
+  +bayan_fields(attr, data, {prefix: id})
+
+mixin bayan_widget_array(attr, data, id)
+  .bayan-template(id='bayan-template-'+id,data-next-number=data? data.length : 1)
+    +bayan_array_element(attr['0'], null, id, '{NUM}')
+
+  if data && data.length
+    each val,index in data
+      +bayan_array_element(attr['0'], val, id, index)
+  else
+      +bayan_array_element(attr['0'], null, id, 0)
+
+  div.right-align.bayan-add-array-element.teal
+    button.btn-floating.waves-effect.waves-light.white(type='button',onclick='Bayan.UI.arrayAdd(this)')
+      i.material-icons.teal-text add
+
+mixin bayan_array_element(attr, data, id, num)
+  div(class=('{NUM}'==num)?'bayan-array-template':'bayan-array-element')
+    .row
+      .col.s3.m2.l1
+        .bayan-array-number.valign-wrapper
+          button.valign.btn-floating.btn-flat(type='button',tabindex=-1,onclick='Bayan.UI.arrayDel(this)')
+            i.material-icons delete
+      .col.s9.m10.l11
+        +bayan_field_bare(attr, data, id+'.'+num)
+
+mixin bayan_field_wrapper(opts={}, data)
+  if opts.hide
+    div(style='display: none')
+      +bayan_field_wrapper_bare(opts, data)
+        block
+
+  else if opts.header
+    fieldset.bayan-sub-container
+      legend.bayan-sub-header=opts.header
+      .bayan-sub-content
+        +bayan_field_wrapper_bare(opts, data)
+          block
+  else
+    .row
+      .col.s12(class=opts.classes)
+        +bayan_field_wrapper_bare(opts, data)
+          block
+
+mixin bayan_field_wrapper_bare(opts, data)
+  //- ?'active':''
+  if opts.label
+    label(for=opts.id, class=(data || opts.$.placeholder || ['date', 'time'].includes(opts.$.type) || ['date', 'select', 'multi_select'].indexOf(opts.$.htmlWidget)!=-1)?'active':'')=opts.label
+  block
+
+//- bayan_widget_*
+mixin bayan_widget_input(attr, data, id)
+  input.validate(id=id, name=id, type=attr.$.type,value=data,placeholder=attr.$.placeholder,required=attr.$.required, class=classes)&attributes(attributes)
+
+mixin bayan_widget_date(attr, data, id)
+  +bayan_widget_input(attr, data, id)(type='date',class='datepicker active')
+
+mixin bayan_widget_file(attr, data, id)
+  - var multiple = Array.isArray(attr.$.dataType)
+  .row
+    .col.s12.m6
+      .file-field.input-field
+        .btn
+          span=attr.$.label
+          +bayan_widget_input(attr, null, id)(multiple=multiple)
+          if data
+            +bayan_widget_input(attr, null, id)(type='hidden', value=data.id)
+        .file-path-wrapper
+          input.file-path.validate(type='text')
+    .col.s12.m6
+      each f in multiple? data : [data]
+        - if (!f || !f.url) continue;
+        a(target='_blank',href=f.url)
+          if f.mimeType.substr(0, 6)=='image/'
+            img.responsive-img(src=f.url, alt=f.originalName)
+          else
+            =f.originalName
+
+mixin bayan_widget_checkbox(attr, data, id)
+  p
+    label(for=id)
+      input(type='checkbox',id=id, name=id,checked=!!data, value='on')
+      span=attr.$.label
+
+mixin bayan_widget_textarea(attr, data, id)
+  textarea.materialize-textarea(id=id, name=id,value=data,placeholder=attr.$.placeholder)&attributes(attributes)=data
+
+mixin bayan_widget_select(attr, data, id)
+  select.icons.validate(id=id, name=id,required=attr.$.required)&attributes(attributes)
+    option(disabled,selected=!data,value='')=attr.$.placeholder || '-'
+    each opt,value in attr.$.enum
+      option(value=value,data-icon=opt.image,selected=value==data)=opt.label
+
+mixin bayan_widget_multi_select(attr, data, id)
+  +bayan_widget_select(attr, data, id+'[]')(multiple)
+
+mixin bayan_widget_chips(attr, data, id)
+  .bayan-hidden-fileds
+    each d in (data || [])
+      if !d
+        - continue
+      input(type='hidden', name=id+'[]', value=d.id, data-label=d.title)
+  .chips.chips-autocomplete(data-options=JSON.stringify(attr.$.enum),data-endpoint=attr.$.endpoint
+      data-placeholder=attr.$.placeholder,data-field=id)
+
+mixin bayan_widget_autocomplete(attr, data, id)
+  input.autocomplete(id=id, name=id, type='text',value=data,placeholder=attr.placeholder,data-options=JSON.stringify(attr.$.enum))
+
+mixin bayan_widget_switch(attr, data, id)
+  .switch
+    label
+      | #{attr.$.label}: No
+      input(id=id, name=id, type='checkbox',checked=!!data, value='on')
+      span.lever
+      | Yes

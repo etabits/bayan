@@ -57,7 +57,7 @@ mixin bayan_field_bare(attr, data, id)
       |  is not implemented yet...
 
 mixin bayan_field(attr, data, id)
-  - var wrapperOptions = {id, classes: 'input-type-'+attr.$.type, $: attr.$, hide:attr.$.hide}
+  - var wrapperOptions = {id, classes: 'input-type-'+attr.$.type + (attr.$.required?' input-required':''), $: attr.$, hide:attr.$.hide}
   if 'object' == attr.$.type || 'array' == attr.$.type
     - wrapperOptions.header =attr.$.label
   else if ['input', 'textarea', 'select', 'multi_select', 'chips', 'date'].indexOf(attr.$.htmlWidget)!==-1
@@ -114,17 +114,15 @@ mixin bayan_field_wrapper(opts={}, data)
 mixin bayan_field_wrapper_bare(opts, data)
   //- ?'active':''
   if opts.label
-    label(for=opts.id, class=(data || opts.$.placeholder || ['date', 'select', 'multi_select'].indexOf(opts.$.htmlWidget)!=-1)?'active':'')=opts.label
-      if opts.$.required
-        sup(style='color: #f44336') *
+    label(for=opts.id, class=(data || opts.$.placeholder || ['date', 'time'].includes(opts.$.type) || ['date', 'select', 'multi_select'].indexOf(opts.$.htmlWidget)!=-1)?'active':'')=opts.label
   block
 
 //- bayan_widget_*
 mixin bayan_widget_input(attr, data, id)
-  input.validate(id=id, name=id, type=attr.$.type,value=data,placeholder=attr.$.placeholder,required=attr.$.required)&attributes(attributes)
+  input.validate(id=id, name=id, type=attr.$.type,value=data,placeholder=attr.$.placeholder,required=attr.$.required, class=classes)&attributes(attributes)
 
 mixin bayan_widget_date(attr, data, id)
-  +bayan_widget_input(attr, data, id)(type='date',class='datepicker')
+  +bayan_widget_input(attr, data, id)(type='date',class='datepicker active')
 
 mixin bayan_widget_file(attr, data, id)
   - var multiple = Array.isArray(attr.$.dataType)
@@ -149,8 +147,9 @@ mixin bayan_widget_file(attr, data, id)
 
 mixin bayan_widget_checkbox(attr, data, id)
   p
-    input(type='checkbox',id=id, name=id,checked=!!data)
-    label(for=id)=attr.$.label
+    label(for=id)
+      input(type='checkbox',id=id, name=id,checked=!!data, value='on')
+      span=attr.$.label
 
 mixin bayan_widget_textarea(attr, data, id)
   textarea.materialize-textarea(id=id, name=id,value=data,placeholder=attr.$.placeholder)&attributes(attributes)=data
@@ -180,6 +179,6 @@ mixin bayan_widget_switch(attr, data, id)
   .switch
     label
       | #{attr.$.label}: No
-      input(id=id, name=id, type='checkbox',checked=!!data)
+      input(id=id, name=id, type='checkbox',checked=!!data, value='on')
       span.lever
       | Yes

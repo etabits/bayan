@@ -1,0 +1,19 @@
+{
+  "name": "bayan-admin",
+  "version": "0.2.2",
+  "description": "Bayan Admin",
+  "main": "index.js",
+  "author": "Hasan Arous <arous.hasan@gmail.com> (http://www.etabits.com/)",
+  "license": "MIT",
+  "peerDependencies": {
+    "express": "4.x",
+    "bayan-form": "0.1"
+  },
+  "dependencies": {
+    "l": "^0.6.0"
+  },
+  "files": [
+    "src/",
+    "views/"
+  ]
+}

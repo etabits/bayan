@@ -1,0 +1,34 @@
+extends layout
+mixin displayData(header, data)
+  table.bordered.striped.highlight
+    thead
+      tr
+        th
+        each h in header
+          th=bayan.schema.$.attributesByPath[h].$.label
+    tbody
+      each r in data
+        tr
+          td
+            a(href=createUrl(r.id))
+              i.material-icons edit
+          each h in header
+            td=r[h]
+          td
+            each a in (bayan.rowActions)
+              a(href=a.href(r))=a.label
+              |  
+
+block content
+  .row
+    form.col.s12
+      .row
+        .input-field.col.s12.m6
+        .input-field.col.s12.m6
+          i.material-icons.prefix search
+          input.validate(name='q',id='search_q',type='text')
+          label(for='search_q') Search
+  +displayData(bayan.header, rows)
+  .fixed-action-btn
+    a.btn-floating.btn-large.red(href=createUrl('./+'))
+      i.large.material-icons add

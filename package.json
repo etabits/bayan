@@ -1,0 +1,29 @@
+{
+  "name": "bayan-connector-mongoose",
+  "version": "0.1.2",
+  "scripts": {
+    "pretest": "standard --verbose && jshint --verbose --exclude-path .gitignore .",
+    "test": "nyc ava",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "main": "index.js",
+  "files": [],
+  "peerDependencies": {
+    "mongoose": "^4.9.5"
+  },
+  "devDependencies": {
+    "ava": "^0.19.1",
+    "bayan-core": "^0.1.2",
+    "coveralls": "^2.13.0",
+    "jshint": "^2.9.4",
+    "mongoose": "^4.9.5",
+    "nyc": "^10.2.0",
+    "standard": "^10.0.2"
+  },
+  "jshintConfig": {
+    "asi": true,
+    "esversion": 6,
+    "strict": true,
+    "node": true
+  }
+}

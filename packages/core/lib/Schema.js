@@ -1,47 +1,28 @@
 'use strict'
 var helpers = require('./helpers')
 
-var _ = {
-  get: require('lodash.get')
-}
-
 class Schema {
-  constructor (attributes, opts) {
+  static registerHooks (label, hooks) {
+    if (Schema.registerHookLabels.includes(label)) return false
+    Schema.registerHookLabels.push(label)
+    Schema.globalHooks = Schema.globalHooks.concat(hooks)
+  }
+
+  constructor (attributes, opts = {}) {
     this.$ = {
       attributes,
       opts,
       attributesByPath: {}
     }
-    Object.assign(this, helpers.expandAttributes(attributes, opts, this.$.attributesByPath))
-  }
 
-  validate (data) {
-    var self = this
-
-    var errors = []
-    for (var key in self.$.attributesByPath) {
-      var field = self.$.attributesByPath[key]
-      if (!field.$.validate) continue;
-      var value = _.get(data, key);
-      if (field.$.required && !value) {
-        errors.push({field: key, code: 'required'})
-      }
-    }
-    return errors
+    Object.assign(this, helpers.expandAttributes(attributes, Object.assign({}, opts, {
+      hooks: (opts.hooks || []).concat(Schema.globalHooks),
+      collect: this.$.attributesByPath
+    })))
   }
 }
 
-// TODO: make all enums id-keyed objects
-
-/*
-Features to cover
-Y nested object
-  nested schema
-Y array of strings
-Y array of objects
-  array of schema
-  array of sechma (embedded)
-  multi nested
-*/
+Schema.globalHooks = []
+Schema.registerHookLabels = []
 
 module.exports = Schema

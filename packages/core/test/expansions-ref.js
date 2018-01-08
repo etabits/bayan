@@ -7,22 +7,17 @@ test('basic types', t => {
   var actual = helpers.expandAttr({
     $: {
       ref: 'Author',
-      type: [String]
+      type: Array
     }
-  }, 'author')
+  }, {name: 'authors'})
   var expected = {
     $: {
-      dataType: [String],
-      label: 'Author',
-      htmlWidget: 'chips',
+      dataType: Array,
+      label: 'Authors',
       ref: 'Author',
-      type: null,
-      endpoint: '/admin/authors.json?q=%s', // temp FIXMEPLZ
-      path: 'author'
-
+      type: 'array',
+      path: ['authors']
     }
   }
-  // console.log(console.log(require('util').inspect({actual, expected}, {colors: true, breakLength: 0, depth: 3})))
-  // console.log(expected)
   t.deepEqual(actual, expected)
 })

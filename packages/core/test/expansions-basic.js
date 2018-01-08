@@ -3,24 +3,97 @@ import test from 'ava'
 
 var helpers = require('../lib/helpers')
 
-test('basic types', t => {
-  t.deepEqual(helpers.expandAttr(String, 'str'), {
+test('basic simple type', t => {
+  t.deepEqual(helpers.expandAttr(String), {
     $: {
-      type: 'text',
+      label: '',
       dataType: String,
-      htmlWidget: 'input',
+      type: 'string',
+      path: ['']
+    }
+  })
+})
+
+test('basic simple type plus', t => {
+  t.deepEqual(helpers.expandAttr(String), {
+    $: {
+      label: '',
+      dataType: String,
+      type: 'string',
+      path: ['']
+    }
+  })
+})
+
+test('basic simple type with defaults', t => {
+  t.deepEqual(helpers.expandAttr(String, {defaults: {required: false}}), {
+    $: {
+      label: '',
+      required: false,
+      dataType: String,
+      type: 'string',
+      path: ['']
+    }
+  })
+})
+
+test('basic label', t => {
+  t.deepEqual(helpers.expandAttr('Hey'), {
+    $: {
+      label: 'Hey',
+      dataType: String,
+      type: 'string',
+      path: ['']
+    }
+  })
+})
+
+test('basic .type', t => {
+  t.deepEqual(helpers.expandAttr({
+    type: String,
+    label: 'Hey'
+  }), {
+    $: {
+      label: 'Hey',
+      dataType: String,
+      type: 'string',
+      path: ['']
+    }
+  })
+})
+
+test('basic .$', t => {
+  t.deepEqual(helpers.expandAttr({
+    $: {
+      type: String,
+      label: 'Hey'
+    }
+  }), {
+    $: {
+      label: 'Hey',
+      dataType: String,
+      type: 'string',
+      path: ['']
+    }
+  })
+})
+
+test('basic types', t => {
+  t.deepEqual(helpers.expandAttr(String, {name: 'str'}), {
+    $: {
+      dataType: String,
+      type: 'string',
       label: 'Str',
-      path: 'str'
+      path: ['str']
     }
   })
 
   t.deepEqual(helpers.expandAttr(Number, ''), {
     $: {
-      type: 'number',
       dataType: Number,
-      htmlWidget: 'input',
+      type: 'number',
       label: '',
-      path: ''
+      path: ['']
     }
   })
 })
@@ -30,18 +103,16 @@ test('other input types', t => {
     $: {
       type: 'color',
       dataType: String,
-      htmlWidget: 'input',
       label: '',
-      path: ''
+      path: ['']
     }
   })
-  t.deepEqual(helpers.expandAttr({$: {type: 'email'}}, ''), {
+  t.deepEqual(helpers.expandAttr({type: 'email'}, ''), {
     $: {
       type: 'email',
       dataType: String,
-      htmlWidget: 'input',
       label: '',
-      path: ''
+      path: ['']
     }
   })
 })

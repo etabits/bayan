@@ -8,21 +8,19 @@ test('basic types', t => {
     type: String,
     label: 'Author',
     any: 'TEST'
-  }, 'str')
+  }, {name: 'str'})
   var expected = {
     $: {
-      type: 'text',
+      type: 'string',
       label: 'Author',
       any: 'TEST',
       dataType: String,
-      htmlWidget: 'input',
-      path: 'str'
+      path: ['str']
     }
   }
-  // console.log(require('util').inspect({actual, expected}, {colors: true, breakLength: 0, depth: 3}))
-  // console.log(expected)
   t.deepEqual(actual, expected)
 })
+
 test('array simple', t => {
   var a = helpers.expandAttr([{a: Number, b: String}])
   var b = helpers.expandAttr({
@@ -30,8 +28,6 @@ test('array simple', t => {
   })
 
   t.deepEqual(a, b)
-
-  // console.log(require('util').inspect({a, b}, {colors: true, breakLength: 0, depth: 3}))
 })
 
 test('array', t => {
@@ -40,7 +36,6 @@ test('array', t => {
     people: [{
       ref: 'Entity',
       type: String
-      // $: {refPlural: 'entities'}
     }]
   }], 'credits')
   var b = helpers.expandAttr({
@@ -49,11 +44,8 @@ test('array', t => {
       people: [{
         ref: 'Entity',
         type: String
-        // $: {refPlural: 'entities'}
       }]
     }]
   }, 'credits')
-  // console.log(require('util').inspect({a, b}, {colors: true, breakLength: 0, depth: 3}))
-  // console.log(expected)
   t.deepEqual(a, b)
 })

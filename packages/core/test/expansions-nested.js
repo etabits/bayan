@@ -3,35 +3,110 @@ import test from 'ava'
 
 var helpers = require('../lib/helpers')
 
+test('nested .$', t => {
+  t.deepEqual(helpers.expandAttr({
+    $: {
+      // type: Object,
+      label: 'Hey'
+    },
+    child1: 'Label 1'
+  }), {
+    $: {
+      label: 'Hey',
+      dataType: Object,
+      type: 'object',
+      path: ['']
+    },
+    child1: {
+      $: {
+        label: 'Label 1',
+        dataType: String,
+        type: 'string',
+        path: ['', 'child1']
+      }
+    }
+  })
+})
+
+test('nested .type', t => {
+  t.deepEqual(helpers.expandAttr({
+    type: {
+      child1: 'Label 1'
+    },
+    label: 'Hey!'
+  }), {
+    $: {
+      label: 'Hey!',
+      dataType: Object,
+      type: 'object',
+      path: ['']
+    },
+    child1: {
+      $: {
+        label: 'Label 1',
+        dataType: String,
+        type: 'string',
+        path: ['', 'child1']
+      }
+    }
+  })
+})
+test('nested no .$ nor .type', t => {
+  t.deepEqual(helpers.expandAttr({
+    child1: 'Hey !',
+    child2: 'Hey @'
+  }), {
+    $: {
+      label: '',
+      dataType: Object,
+      type: 'object',
+      path: ['']
+    },
+    child1: {
+      $: {
+        label: 'Hey !',
+        dataType: String,
+        type: 'string',
+        path: ['', 'child1']
+      }
+    },
+    child2: {
+      $: {
+        label: 'Hey @',
+        dataType: String,
+        type: 'string',
+        path: ['', 'child2']
+      }
+    }
+  })
+})
+
 test('object', t => {
   var nested = helpers.expandAttr({
     sub: {
       str: String
     }
-  }, 'nested')
+  }, {name: 'nested'})
   t.deepEqual(nested, {
     $: {
-      type: 'object',
       dataType: Object,
+      type: 'object',
       label: 'Nested',
-      htmlWidget: 'object',
-      path: 'nested'
+      path: ['nested']
     },
     sub: {
       $: {
-        type: 'object',
         dataType: Object,
+        type: 'object',
         label: 'Sub',
-        htmlWidget: 'object',
-        path: 'nested.sub'
+        path: ['nested', 'sub']
       },
       str: {
         $: {
-          type: 'text',
           dataType: String,
+          type: 'string',
           label: 'Str',
-          htmlWidget: 'input',
-          path: 'nested.sub.str'
+          path: ['nested', 'sub', 'str']
         }
       }
     }
@@ -41,30 +116,27 @@ test('object', t => {
 test('array', t => {
   var nested = helpers.expandAttr([{
     name: String
-  }], 'nested')
+  }], {name: 'nested'})
   t.deepEqual(nested, {
     $: {
-      type: 'array',
       dataType: Array,
+      type: 'array',
       label: 'Nested',
-      htmlWidget: 'array',
-      path: 'nested'
+      path: ['nested']
     },
     '0': {
       $: {
-        type: 'object',
         dataType: Object,
-        htmlWidget: 'object',
+        type: 'object',
         label: '0',
-        path: 'nested.0'
+        path: ['nested', '0']
       },
       name: {
         $: {
-          type: 'text',
           dataType: String,
+          type: 'string',
           label: 'Name',
-          htmlWidget: 'input',
-          path: 'nested.0.name'
+          path: ['nested', '0', 'name']
         }
       }
     }

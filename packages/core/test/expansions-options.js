@@ -6,35 +6,28 @@ var helpers = require('../lib/helpers')
 test('with options', t => {
   var single = helpers.expandAttr({
     $: {
-      enum: ['hey', 'there']
+      enum: ['hey', 'there'],
+      type: String
     }
-  }, 'single')
+  }, {name: 'single'})
   t.deepEqual(single.$, {
     dataType: String,
-    enum: {
-      hey: {label: 'Hey'},
-      there: {label: 'There'}
-    },
-    htmlWidget: 'select',
+    enum: ['hey', 'there'],
     label: 'Single',
-    type: null,
-    path: 'single'
+    type: 'string',
+    path: ['single']
   })
   var many = helpers.expandAttr({
     $: {
       enum: ['hey', 'there'],
-      type: [String]
+      type: Array // FIXME should accept [String] or [Number]
     }
-  }, 'many')
+  }, {name: 'many'})
   t.deepEqual(many.$, {
-    dataType: [String],
-    enum: {
-      hey: {label: 'Hey'},
-      there: {label: 'There'}
-    },
-    htmlWidget: 'multi_select',
+    dataType: Array,
+    enum: ['hey', 'there'],
     label: 'Many',
-    type: null,
-    path: 'many'
+    type: 'array',
+    path: ['many']
   })
 })

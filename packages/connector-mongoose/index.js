@@ -85,7 +85,11 @@ class MongooseConnector {
     // console.log(schema)
     return new bayan.Schema(mongooseModel.schema.obj, {
       modelName: mongooseModel.modelName,
-      attributeTransformer: MongooseConnector.attrFrom
+      hooks: [{
+        type: 'pre',
+        weight: -1,
+        handler: MongooseConnector.attrFrom
+      }]
     })
   }
 }

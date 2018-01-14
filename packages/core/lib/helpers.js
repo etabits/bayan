@@ -22,9 +22,14 @@ helpers.expandAttr = function (attr, ctxt) {
     collect: null
   }, ctxt)
 
-  ctxt.hooks.filter((h) => h.type === 'pre').forEach(function (h) {
+  var hooks = ctxt.hooks
+  if (attr.widget) {
+    hooks = ctxt.hooks.concat(attr.widget.constructor.hooks)
+  }
+
+  hooks.filter((h) => h.type === 'pre').forEach(function (h) {
     attr = h.handler(attr)
-  })
+  }) // FIXME maybe should not return attr, just handle it!
 
   var typeofAttr = typeof attr
   var metas = Object.assign({}, ctxt.defaults)
@@ -86,7 +91,7 @@ helpers.expandAttr = function (attr, ctxt) {
 
   attribute.$ = metas
 
-  ctxt.hooks.filter((h) => h.type === 'post').forEach(function (h) {
+  hooks.filter((h) => h.type === 'post').forEach(function (h) {
     attribute = h.handler(attribute)
   })
 

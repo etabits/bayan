@@ -4,6 +4,8 @@ const express = require('express')
 const bayanForm = require('bayan-form')
 const qs = require('qs')
 
+require('bayan-ui-materializecss').register(require('bayan-core'))
+
 class Admin {
   constructor (opts) {
     this.models = opts.models

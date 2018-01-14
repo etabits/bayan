@@ -10,6 +10,7 @@
     "bayan-form": "0.1"
   },
   "dependencies": {
+    "bayan-ui-materializecss": "*",
     "l": "^0.6.0"
   },
   "files": [

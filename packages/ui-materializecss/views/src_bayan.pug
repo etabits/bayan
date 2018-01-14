@@ -1,0 +1,164 @@
+mixin _bayan_debug(str)
+  - if (!pug_mixins._bayan_form_ctxt.debug) return;
+  if pug_mixins._bayan_form_ctxt.debug === 'htmlcomment'
+    <!-- #{str} -->
+  else
+    pre: em(style='color: #aa7')=str
+
+//- API: Output form defined by model, with optional settings provided by ctxt
+    @calls _bayan_fields
+mixin form(model, ctxt)
+  -
+    ctxt = Object.assign({data: null, model, prefix: 'form'}, ctxt, {path: []})
+    pug_mixins._bayan_form_ctxt = ctxt // "puggybacking", for +f() calls to work
+  +_bayan_debug('form')
+  form(method='post', data-prefix=ctxt.prefix, enctype='application/x-www-form-urlencoded')&attributes(attributes)
+    if block
+      block
+    else
+      .card
+        .card-content
+          +_bayan_fields(model, ctxt.data, ctxt)
+          .card-action
+            button.btn.waves-effect.waves-light(type='submit')
+              | Submit
+              i.material-icons.right send
+  +_bayan_debug('/form')
+  - delete pug_mixins._bayan_form_ctxt
+
+//- API: Output fields at pa.th, optionally overriding .$
+    @calls _bayan_fields
+mixin f(path, opts)
+  -
+    var ctxt = pug_mixins._bayan_form_ctxt
+    var field = ctxt.model;
+    var data = ctxt.data;
+    var pathParts = path.split('.')
+    // recursively seek dotted path
+    for (var parts = ctxt.path.concat(pathParts); parts.length > 0; data = data && data[parts[0]], field=field[parts.shift()]);
+    if (opts && opts.$) { // make a copy
+      field = Object.assign({}, field, {$: Object.assign({}, field.$, opts.$)})
+    }
+    ctxt.path.push.apply(ctxt.path, pathParts)
+  if !field
+    pre.red.lighten-1(dir='ltr'): em
+      strong #{path}
+      |  is not found!
+  else if block
+    block
+  else
+    - var id = [ctxt.prefix].concat(ctxt.path).join('.')
+    - var attrName = pathParts[pathParts.length-1]
+    +_bayan_field(field, data, Object.assign({}, ctxt, {id, attrName}))&attributes(attributes)
+  - ctxt.path.splice(ctxt.path.length-pathParts.length)
+
+//- Semi-Internal: encloses block inside a fieldset
+mixin _bayan_fieldset(opts)
+  fieldset.bayan-sub-container
+    legend.bayan-sub-header=opts.label
+    .bayan-sub-content
+      block
+
+//- Semi-Internal: Outputs a label {id, label}
+mixin _bayan_label(opts)
+  label(for=opts.id, class=opts.labelClass)=opts.label
+
+//- Internal: displays all fields one after another
+    @calls _bayan_field
+mixin _bayan_fields(fields, data, ctxt)
+  +_bayan_debug('_bayan_fields')
+  each attr, attrName in fields
+    -
+      if ('$'==attrName || attr.$.skip || (ctxt.skipFields && -1!=ctxt.skipFields.indexOf(attrName))) continue;
+      var id = ctxt.prefix + '.' + attrName
+      ctxt.path.push(attrName);
+    +_bayan_field(attr, data && data[attrName], Object.assign({}, ctxt, {id, attrName}))
+    - ctxt.path.pop()
+  +_bayan_debug('/_bayan_fields')
+
+//- Internal, displays one field by calling its .$.pugMixin
+    shows an html error block if mixin is not found FIXME?
+    @calls .$.pugMixin
+mixin _bayan_field(attr, data, ctxt)
+  +_bayan_debug(`_bayan_field: ${ctxt.id} (${ctxt.path.join('/')})`)
+  if pug_mixins[attr.$.pugMixin]
+    +_bayan_debug(`${attr.$.pugMixin}: ${ctxt.id}`)
+    +#{attr.$.pugMixin}(attr, data, ctxt)&attributes(attributes)
+    +_bayan_debug(`${attr.$.pugMixin}: ${ctxt.id}`)
+  else
+    pre.red(dir='ltr'): em
+      strong #{attr.$.pugMixin}
+      |  is not implemented yet...
+  +_bayan_debug(`/_bayan_field: ${ctxt.id}`)
+
+//- Internal: wraps the field inside common framework markup, with optional label
+    @calls _bayan_label
+mixin _bayan_field_wrapper(opts)
+  +_bayan_debug(`_bayan_field_wrapper: ${opts.id}`)
+  .row&attributes(attributes): .input-field.col.s12
+    if opts.label
+      +_bayan_label(opts)
+    block
+  +_bayan_debug(`_bayan_field_wrapper: ${opts.id}`)
+
+//- Internal: Default 'object' handler, outputs fields inside a fieldset
+    @calls _bayan_fieldset, _bayan_fields
+mixin _bayan_widget_object(attr, data, ctxt)
+  +_bayan_fieldset({label: ctxt.index || attr.$.label})
+    +_bayan_fields(attr, data, Object.assign({}, ctxt, {prefix: ctxt.id}))
+
+//- Internal: Outputs an array with a plus button
+    @calls _bayan_array_element
+mixin _bayan_widget_array(attr, data, ctxt)
+  .bayan-template(id='bayan-template-'+ctxt.id,data-next-number=data? data.length : 1)
+    +_bayan_array_element(attr['0'], null, Object.assign({}, ctxt, {index: '{NUM}'}))
+
+  each val, index in (data && data.length)? data : [null]
+    +_bayan_array_element(attr['0'], val, Object.assign({}, ctxt, {index}))
+
+  div.right-align.bayan-add-array-element.teal
+    button.btn-floating.waves-effect.waves-light.white(type='button',onclick='Bayan.UI.arrayAdd(this)')
+      i.material-icons.teal-text add
+
+mixin _bayan_array_element(attr, data, ctxt)
+  div(class=('{NUM}'==ctxt.index)?'bayan-array-template':'bayan-array-element')
+    .row
+      .col.s3.m2.l1
+        .bayan-array-number.valign-wrapper
+          button.valign.btn-floating.btn-flat(type='button',tabindex=-1,onclick='Bayan.UI.arrayDel(this)')
+            i.material-icons delete
+      .col.s9.m10.l11
+        - ctxt.path.push(ctxt.index)
+        +_bayan_field(attr, data, Object.assign({}, ctxt, {id: ctxt.id+'.'+ctxt.index}))
+        - ctxt.path.pop()
+
+//- Internal: Common widgets
+mixin _bayan_widget_input(attr, data, ctxt)
+  +_bayan_field_wrapper({label: attr.$.label, id: ctxt.id, labelClass: ctxt.labelClass})
+    input.validate(id=ctxt.id, name=ctxt.id, type=attr.$.htmlType,value=data,
+      placeholder=attr.$.placeholder,
+      required=attr.$.required)&attributes(attributes)
+
+mixin _bayan_widget_date(attr, data, ctxt)
+  +_bayan_widget_input(attr, data, Object.assign({}, ctxt, {labelClass:'active'}))(type='date',class='datepicker active')
+
+mixin _bayan_widget_boolean(attr, data, ctxt)
+  label.field-checkbox
+    input(name=ctxt.id, id=ctxt.id, type='checkbox')
+    span=attr.$.label
+
+mixin _bayan_widget_file(attr, data, ctxt)
+  .file-field.input-field
+    .btn
+      span=attr.$.label
+      input(type='file', name=ctxt.id, id=ctxt.id)
+
+mixin _bayan_widget_textarea(attr, data, ctxt)
+  +_bayan_field_wrapper({label: attr.$.label, id: ctxt.id, labelClass: ctxt.labelClass})
+    textarea.materialize-textarea(id=ctxt.id, name=ctxt.id)=value
+
+mixin _bayan_widget_select(attr, data, ctxt)
+  +_bayan_field_wrapper({label: attr.$.label, id: ctxt.id, labelClass: ctxt.labelClass})
+    select(id=ctxt.id, name=ctxt.id)
+      each label, val in attr.$.enum
+        option(value=(typeof val=='number')? label : val)=label

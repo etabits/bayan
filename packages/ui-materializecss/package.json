@@ -1,0 +1,16 @@
+{
+  "name": "bayan-ui-materializecss",
+  "version": "1.0.0-alpha.3-bayan.1",
+  "description": "Bayan MaterializeCSS UI (PUG mixins)",
+  "author": "Hasan Arous <arous.hasan@gmail.com> (http://www.etabits.com/)",
+  "license": "MIT",
+  "dependencies": {},
+  "peerDependencies": {
+    "bayan-core": "^0.2.0"
+  },
+  "files": [
+    "assets/*.css",
+    "assets/*.js",
+    "views"
+  ]
+}

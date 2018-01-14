@@ -1,4 +1,4 @@
 extends layout
-include ../../../node_modules/bayan-form/views/_bayan
+include ../../../node_modules/bayan-ui-materializecss/views/src_bayan
 block content
-  +form(bayan.schema, row, formOpts)(method='post',enctype=hasFiles?'multipart/form-data':'application/x-www-form-urlencoded')
+  +bayan_admin_page_edit()

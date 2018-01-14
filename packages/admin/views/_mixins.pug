@@ -1,0 +1,82 @@
+//- Layout
+mixin bayan_admin_layout_head()
+  head
+    meta(charset='UTF-8')
+    title=title
+    each s in statics.css
+      link(rel="stylesheet", href=s)
+mixin bayan_admin_nav_item(item)
+  li: a(href=`${req.baseUrl}/${item}/`)&attributes(attributes)=admin.models[item].title
+    block
+mixin bayan_admin_layout_nav()
+  if nav
+    each item, i in nav
+      if item.length > 1
+        ul.dropdown-content(id=`nav-dd-${i}`)
+          each sub in item.slice(1)
+            +bayan_admin_nav_item(sub)
+  nav
+    .nav-wrapper
+      a.right(href=`${req.baseUrl}/`, title=admin.options.titleTitle)=admin.options.title
+      ul.left.hide-on-med-and-down#nav-mobile
+        if nav
+          each item, i in nav
+            li
+              if item.length > 1
+                +bayan_admin_nav_item(item[0])(class='dropdown-trigger', data-target=`nav-dd-${i}`)
+                  i.material-icons.right arrow_drop_down
+                // a.dropdown-trigger(href=`${req.baseUrl}/${item[0]}/`, data-target=`nav-dd-${i}`)=admin.models[item[0]].title
+              else
+                +bayan_admin_nav_item(item[0])
+        else
+          each m, slug in admin.models
+            li: a(href=`${req.baseUrl}/${slug}/`)=m.title
+
+mixin bayan_admin_layout_scripts
+  each s in statics.js
+    script(type='text/javascript', src=s)
+//- Add/Edit
+mixin bayan_admin_page_edit
+  +form(bayan.schema, formCtxt)(method='post',enctype=hasFiles?'multipart/form-data':'application/x-www-form-urlencoded')
+
+//- Collection
+mixin bayan_admin_search()
+  .row
+    form.col.s12
+      .row
+        .input-field.col.s12.m6
+        .input-field.col.s12.m6
+          i.material-icons.prefix search
+          input.validate(name='q',id='search_q',type='text')
+          label(for='search_q') Search
+
+mixin bayan_admin_display_data(header, data)
+  table.bordered.striped.highlight
+    thead
+      tr
+        th
+        each h in header
+          th=bayan.schema.$.attributesByPath[h].$.label
+    tbody
+      each r in data
+        tr
+          td
+            a(href=createUrl(r.id))
+              i.material-icons edit
+          each h in header
+            td=r[h]._$label || r[h]
+          td
+            each a in (bayan.rowActions)
+              a(href=a.href(r))=a.label
+              |  
+
+mixin bayan_admin_fab()
+  .fixed-action-btn
+    a.btn-floating.btn-large.red()&attributes(attributes)
+      block
+
+mixin bayan_admin_page_collection()
+  +bayan_admin_search()
+  +bayan_admin_display_data(bayan.header, rows)
+  +bayan_admin_fab(href=createUrl('./+'))
+    i.large.material-icons add

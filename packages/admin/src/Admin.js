@@ -30,7 +30,8 @@ class Admin {
           'https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.3/js/materialize.min.js',
           '/admin/_statics/js/script.js' // - should not be this static, /admin
         ]
-      }
+      },
+      nav: this.options.nav
     }
 
     this.opts = {}
@@ -110,15 +111,15 @@ class Admin {
 
   _model_edit (req, res, next) {
     var self = this
-    res.locals.formOpts = {
+    res.locals.formCtxt = {
       prefix: 'form',
-      skipFields: Object.keys(res.locals.conditions)
+      skipFields: Object.keys(res.locals.conditions),
+      data: res.locals.row
     }
 
     self._render(req, res, {
       templateName: 'edit',
-      hasFiles: !!self.options.upload,
-      ctxt: {}
+      hasFiles: !!self.options.upload
     })
   }
 

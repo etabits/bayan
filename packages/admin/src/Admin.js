@@ -22,14 +22,12 @@ class Admin {
       admin: this,
       statics: {
         css: [
+          'https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.3/css/materialize.min.css',
           '//fonts.googleapis.com/icon?family=Material+Icons',
-          'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css',
           '/admin/_statics/css/style.css'
         ],
         js: [
-          'https://code.jquery.com/jquery-2.1.1.min.js',
-          '/js/materialize.js',
-          // https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js
+          'https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.3/js/materialize.min.js',
           '/admin/_statics/js/script.js' // - should not be this static, /admin
         ]
       }

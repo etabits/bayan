@@ -54,21 +54,6 @@ class MongooseConnector {
   }
 
   static attrFrom (attr) {
-    if (typeof attr === 'object') {
-      if (Array.isArray(attr)) {
-        attr = attr.slice(0) // copying
-        if (typeof attr[0].ref === 'string') {
-          attr = Object.assign({}, attr[0], {
-            type: [String],
-            ref: attr[0].ref
-            // path: {populate: true}
-          })
-        }
-      } else {
-        attr = Object.assign({}, attr)// copying
-      }
-    }
-
     // we have a type and we have metas
     if (typeof attr.type !== 'undefined' && typeof attr.$ !== 'undefined') {
       for (var key in attr) {

@@ -9,16 +9,16 @@
   "main": "index.js",
   "files": [],
   "peerDependencies": {
-    "mongoose": "^4.9.5"
+    "mongoose": "^5.0.0-rc2",
+    "bayan-core": "^0.2.0"
   },
   "devDependencies": {
-    "ava": "^0.19.1",
-    "bayan-core": "^0.1.2",
-    "coveralls": "^2.13.0",
-    "jshint": "^2.9.4",
-    "mongoose": "^4.9.5",
-    "nyc": "^10.2.0",
-    "standard": "^10.0.2"
+    "ava": "^0.24.0",
+    "coveralls": "^3.0.0",
+    "jshint": "^2.9.5",
+    "mongoose": "^5.0.0-rc2",
+    "nyc": "^11.4.1",
+    "standard": "^10.0.3"
   },
   "jshintConfig": {
     "asi": true,

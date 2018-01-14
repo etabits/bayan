@@ -66,7 +66,18 @@ class Admin {
       if (!res.locals.bayan) {
         return next(404)
       }
-      res.locals.conditions = Object.assign({}, res.locals.bayan.conditions || {}, req.query.c)
+      res.locals.conditions = Object.assign({}, res.locals.bayan.conditions || {})
+      for (var key in req.query.c) {
+        var val = req.query.c[key]
+        try {
+          val = JSON.parse(val)
+        } catch (e) {}
+        if (Array.isArray(val) || typeof val === 'string') {
+          res.locals.conditions[key] = val
+        } else {
+          console.error(`Refusing to accept query.c["${key}"] == `, val)
+        }
+      }
       next()
     })
     router.param('id', function (req, res, next, id) {

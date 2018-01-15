@@ -158,7 +158,9 @@ mixin _bayan_widget_textarea(attr, data, ctxt)
     textarea.materialize-textarea(id=ctxt.id, name=ctxt.id)=value
 
 mixin _bayan_widget_select(attr, data, ctxt)
-  +_bayan_field_wrapper({label: attr.$.label, id: ctxt.id, labelClass: ctxt.labelClass})
-    select(id=ctxt.id, name=ctxt.id)
+  +_bayan_field_wrapper({label: attr.$.label, id: ctxt.id, labelClass: (ctxt.labelClass || '')+' active'})
+    select(id=ctxt.id, name=ctxt.id, required=attr.$.required)
+      if attr.$.placeholder
+        option(disabled,selected=!data,value='')=attr.$.placeholder
       each label, val in attr.$.enum
         option(value=(typeof val=='number')? label : val)=label

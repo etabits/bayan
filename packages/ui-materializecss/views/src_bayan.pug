@@ -36,8 +36,8 @@ mixin f(path, opts)
     var pathParts = path.split('.')
     // recursively seek dotted path
     for (var parts = ctxt.path.concat(pathParts); parts.length > 0; data = data && data[parts[0]], field=field[parts.shift()]);
-    if (opts && opts.$) { // make a copy
-      field = Object.assign({}, field, {$: Object.assign({}, field.$, opts.$)})
+    if (opts) { // make a copy
+      field = Object.assign({}, field, {$: Object.assign({}, field.$, opts)})
     }
     ctxt.path.push.apply(ctxt.path, pathParts)
   if !field

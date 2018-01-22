@@ -138,6 +138,7 @@ mixin _bayan_widget_input(attr, data, ctxt)
     input.validate(id=ctxt.id, name=ctxt.id, type=attr.$.htmlType,value=data,
       placeholder=attr.$.placeholder,
       required=attr.$.required)&attributes(attributes)
+    block
 
 mixin _bayan_widget_date(attr, data, ctxt)
   +_bayan_widget_input(attr, data, Object.assign({}, ctxt, {labelClass:'active'}))(type='date',class='datepicker active')

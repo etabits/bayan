@@ -2,7 +2,7 @@
   "name": "bayan-connector-mongoose",
   "version": "0.1.2",
   "scripts": {
-    "pretest": "standard --verbose && jshint --verbose --exclude-path .gitignore .",
+    "pretest": "standard --fix --verbose && jshint --verbose --exclude-path .gitignore .",
     "test": "nyc ava",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },

@@ -4,6 +4,15 @@ const express = require('express')
 const bayanForm = require('bayan-form')
 const qs = require('qs')
 
+require('bayan-core').Schema.registerHooks('bayan-admin', [{
+  type: 'post',
+  handler: attr=> {
+    if (!attr.$.ref || attr.$.endpoint) return attr;
+    attr.$.endpoint = '/admin/' + attr.$.ref.toLowerCase() + 's.json?q=%s'
+    return attr
+  }
+}])
+
 class Admin {
   constructor (opts) {
     this.models = opts.models
@@ -127,6 +136,7 @@ class Admin {
 
     self._render(req, res, {
       templateName: 'edit',
+      title: res.locals.row? res.locals.row._$label : 'New',
       hasFiles: !!self.options.upload
     })
   }

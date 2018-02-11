@@ -5,6 +5,9 @@ class MongooseConnector {
   constructor (obj) {
     if (typeof obj.schema !== 'undefined') { // instanceof mongoose.Schema
       this.model = obj
+      this.model._$bayan = Object.assign({
+        populate: null
+      }, this.model._$bayan || {})
       this.mongooseSchema = this.model.schema
       this.bayanSchema = MongooseConnector.schemaFrom(this.model)
     } else { // FIXMEPLZ
@@ -22,8 +25,13 @@ class MongooseConnector {
         {_$search: new RegExp(opts.q, 'i')}
       ]
     }
-    return this.model.find(conditions).limit(100)
+    var ret = this.model.find(conditions)
+    if (this.model._$bayan.populate) {
+      ret = ret.populate(this.model._$bayan.populate)
+    }
+    return ret.limit(opts.limit || 100)
   }
+
   findById (id) {
     var ret = this.model.findById(id)
     var pathsToPopulate = []

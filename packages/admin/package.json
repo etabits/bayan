@@ -7,10 +7,9 @@
   "license": "MIT",
   "peerDependencies": {
     "express": "4.x",
-    "bayan-form": "0.1"
+    "bayan-form": "^1.0.0-alpha.3-bayan.1"
   },
   "dependencies": {
-    "bayan-ui-materializecss": "*",
     "l": "^0.6.0"
   },
   "files": [

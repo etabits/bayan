@@ -4,8 +4,6 @@ const express = require('express')
 const bayanForm = require('bayan-form')
 const qs = require('qs')
 
-require('bayan-ui-materializecss').register(require('bayan-core'))
-
 class Admin {
   constructor (opts) {
     this.models = opts.models
@@ -24,12 +22,9 @@ class Admin {
       admin: this,
       statics: {
         css: [
-          'https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.3/css/materialize.min.css',
-          '//fonts.googleapis.com/icon?family=Material+Icons',
           '/admin/_statics/css/style.css'
         ],
         js: [
-          'https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.3/js/materialize.min.js',
           '/admin/_statics/js/script.js' // - should not be this static, /admin
         ]
       },

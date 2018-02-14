@@ -84,6 +84,7 @@ class Admin {
           console.error(`Refusing to accept query.c["${key}"] == `, val)
         }
       }
+      res.locals.skipFields = Object.keys(res.locals.conditions)
       next()
     })
     router.param('id', function (req, res, next, id) {
@@ -130,7 +131,7 @@ class Admin {
     var self = this
     res.locals.formCtxt = {
       prefix: 'form',
-      skipFields: Object.keys(res.locals.conditions),
+      skipFields: res.locals.skipFields,
       data: res.locals.row
     }
 
@@ -150,7 +151,10 @@ class Admin {
       Object.assign(parsedData, res.locals.conditions || {})
       return res.locals.bayan.connector.update(res.locals.row, parsedData)
     })
-    .then(function () {
+    .then(function (saved) {
+      if (res.locals.bayan.postUpdateHandler) {
+        return res.locals.bayan.postUpdateHandler(saved, req, res, next)
+      }
       res.redirect(createUrl(req, './'))
     })
     .catch((e) => console.error(e))
@@ -160,7 +164,6 @@ class Admin {
     res.locals.createUrl = (url, opts) => createUrl(req, url, opts)
     res.render(this.opts.templatesPath.replace('%s', params.templateName), params)
   }
-
 }
 
 function createUrl (req, url, opts) {
@@ -168,6 +171,7 @@ function createUrl (req, url, opts) {
     c: req.query.c
   })
 }
+Admin.createUrl = createUrl
 
 function processFiles (req, opts) {
   var promises = []

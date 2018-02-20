@@ -21,8 +21,8 @@ class MongooseConnector {
     // FIXMEPLZ loop all string fields or those with a flag?
     if (opts.q) {
       conditions.$or = [
-        {_$label: new RegExp(opts.q, 'i')},
-        {_$search: new RegExp(opts.q, 'i')}
+        {_$label: new RegExp('(?:^|[^a-z])'+opts.q, 'i')},
+        {_$search: new RegExp('(?:^|[^a-z])'+opts.q, 'i')}
       ]
     }
     var ret = this.model.find(conditions)

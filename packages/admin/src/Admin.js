@@ -72,6 +72,7 @@ class Admin {
       if (!res.locals.bayan) {
         return next(404)
       }
+      res.locals.title = res.locals.bayan.title
       res.locals.conditions = Object.assign({}, res.locals.bayan.conditions || {})
       for (var key in req.query.c) {
         var val = req.query.c[key]
@@ -85,7 +86,25 @@ class Admin {
         }
       }
       res.locals.skipFields = Object.keys(res.locals.conditions)
-      next()
+      res.locals.detailedConditions = []
+      var promises = []
+      for (var fieldName in res.locals.conditions) {
+        var value = res.locals.conditions[fieldName]
+        var field = res.locals.bayan.schema[fieldName];
+        if (!field) continue;
+        res.locals.detailedConditions.push({
+          fieldName,
+          field,
+          value,
+        })
+        promises.push((!field.$.ref)? value: self.models[field.$.ref.toLowerCase()+'s'].connector.findById(value).then((res)=>res._$label))
+      }
+      Promise.all(promises).then(function (results) {
+        if (results.length) {
+          res.locals.title += ' (' + results.join(', ') + ')'
+        }
+        next();
+      })
     })
     router.param('id', function (req, res, next, id) {
       res.locals.bayan.connector.findById(id)
@@ -121,7 +140,7 @@ class Admin {
       self._render(req, res, {
         templateName: 'collection',
         rows,
-        title: res.locals.bayan.title
+        title: res.locals.title || res.locals.bayan.title
       })
     })
     .catch((e) => console.error(e))

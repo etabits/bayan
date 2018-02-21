@@ -126,10 +126,16 @@ class Admin {
     router.route('/:model_name/:id')
       .get(this._model_edit.bind(this))
       .post(this._model_update.bind(this))
+      .delete(this._model_delete.bind(this))
 
     this.router = router
   }
 
+  _model_delete (req, res, next) {
+    res.locals.row.remove().then(function () {
+      res.status(204).end()
+    })
+  }
   _model_index (req, res, next) {
     var self = this
     res.locals.bayan.connector.find(res.locals.conditions, {q: req.query.q})

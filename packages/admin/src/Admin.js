@@ -79,7 +79,7 @@ class Admin {
         try {
           val = JSON.parse(val)
         } catch (e) {}
-        if (Array.isArray(val) || typeof val === 'string') {
+        if (Array.isArray(val) || typeof val === 'string' || typeof val === 'number') {
           res.locals.conditions[key] = val
         } else {
           console.error(`Refusing to accept query.c["${key}"] == `, val)
